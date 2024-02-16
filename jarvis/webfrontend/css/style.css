@@ -1,0 +1,257 @@
+@font-face {
+    font-family: "Atari Classic";
+    src: url("../fonts/Atari-Classic.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+
+}
+
+.hp-colors {
+    /* Skin */
+    color: #ffdcc4;
+    /* Ears & Nose */
+    color: #eabaa3;
+    /* BG */
+    color: #291305;
+    /* Hat 1 */
+    color: #a65b00;
+    color: rgb(166, 91, 0);
+    color: rgb(168, 93, 0);
+    /* Hat 2 */
+    color: #5e2901;
+    color: rgb(94, 41, 1);
+    color: rgb(97, 42, 0);
+}
+
+body {
+    font-family: "Atari Classic";
+    font-size: 0.6rem;
+    color: #212529;
+    height: calc(107vh - 100px);
+}
+
+#container-spinner {
+    margin-top: 20vh;
+    text-align: center;
+}
+
+#container-spinner img {
+    width: 90px;
+    animation: rotation .9s 5 ease-in-out;
+}
+
+#container-main {
+    display: none;
+    max-width: 1300px;
+    /* margin-bottom: 1rem; */
+}
+
+#heading {
+    font-weight: normal;
+    margin-bottom: .5rem;
+    font-size: calc(1.325rem + .9vw);
+}
+
+.student-card {
+    background-color: #f6eee5;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    margin-top: .9rem;
+}
+
+.student-title {
+    font-size: 0.85rem;
+    font-weight: normal;
+    margin-left: -0.1rem;
+}
+
+.student-img {
+    width: 90px;
+}
+
+.student-table {
+    margin-bottom: 0;
+}
+
+.student-table>:not(caption)>*>* {
+    border: 0;
+    padding: .25rem 0rem .1rem 0rem;
+    background: none;
+    color: #212529;
+    font-size: 0.47rem;
+    font-weight: normal;
+}
+
+.student-table tr {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.student-table tr:last-child {
+    border-bottom: 0;
+}
+
+.student-table .table-divider {
+    font-size: .6rem;
+    padding: 0.6rem 0 0.1rem 0;
+}
+
+.student-table th {
+    color: #212529;
+    padding-right: 0.3rem;
+    padding-left: 0.01rem;
+}
+
+.student-table td {
+    color: darkgreen;
+}
+
+td.student-update {
+    font-size: 0.4rem;
+    padding: 0.2rem 0rem 0rem 0.05rem;
+    color: #6c757d;
+}
+
+/* #container-chat {
+    max-height: 88vh;
+    overflow-y: auto;
+} */
+
+#container-messages {
+    --bs-gutter-x: 0;
+    --bs-gutter-y: .85rem;
+}
+
+#input-message {
+    font-size: 0.6rem;
+    line-height: 0.6rem;
+    height: 2rem;
+}
+
+#input-message:focus {
+    border-color: rgb(94, 41, 1);
+    border-right: 0;
+    outline: 0;
+    box-shadow: 0 0 0 .25rem rgb(246, 238, 229);
+    clip-path: inset(-25rem 0 -25rem -25rem);
+}
+
+#container-chat button {
+    font-size: 0.6rem;
+    line-height: 0.7rem;
+    height: 2rem;
+    --bs-btn-bg: #5e2901;
+    --bs-btn-border-color: #5e2901;
+    --bs-btn-hover-bg: #391800;
+    --bs-btn-hover-border-color: #291403;
+    --bs-btn-active-bg: #391800;
+    --bs-btn-active-border-color: #291403;
+}
+
+#img-mic {
+    image-rendering: pixelated;
+}
+
+.btn-activated {
+    background-color: darkgreen;
+    border-color: darkgreen;
+}
+
+.btn-activated:hover,
+.btn-activated:active {
+    background-color: #003100 !important;
+    border-color: #003100 !important;
+}
+
+.chat-row-message {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.chat-message {
+    position: relative;
+    font-size: 0.57rem;
+    font-weight: normal;
+    border: 1px solid #5e2901;
+    border-radius: 6px;
+    padding: 1rem;
+    flex: 0 0 auto;
+    max-width: 80%;
+    width: auto;
+    border: 0;
+    /* box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px; */
+}
+
+.chat-message-system {
+    background-color: #dad3cb;
+    background-color: tan;
+    background-color: #f3ca98;
+}
+
+.chat-message-user {
+    background-color: #5e2901;
+    color: #f6eee5;
+    margin-left: auto;
+}
+
+.chat-message::after {
+    content: '';
+    position: absolute;
+    display: block;
+    width: 0;
+    z-index: 1;
+    border-style: solid;
+    bottom: 1rem;
+}
+
+.chat-message-system::after {
+    border-color: transparent transparent #f3ca98 transparent;
+    border-width: 0 0 1rem 1rem;
+    left: -0.8rem;
+}
+
+.chat-message-user::after {
+    border-color: transparent transparent transparent #5e2901;
+    border-width: 1rem 0 0 1rem;
+    right: -0.8rem;
+}
+
+#fixed-diagnostic {
+    position: fixed;
+    z-index: 50;
+    right: 2%;
+    top: 0;
+    background-color: white;
+    padding: 10px 0px 10px 5px;
+    /* border: 1px solid #6c757d; */
+    opacity: 0.9;
+    max-width: 100%;    
+}
+
+#container-diagnostic {
+    font-size: .5rem;
+}
+
+#container-diagnostic th {
+    padding: 0 .5rem 0 0;
+    vertical-align: top;
+    width: 6rem;
+}
+
+#container-diagnostic td {
+    padding: 0;
+    vertical-align: top;
+    padding: 0 10px 0 0;
+}
+
+
+
+/* --------------------------- ANIMATIONS --------------------------- */
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Hatbot</title>
+
+    <link rel="icon" type="image/png" sizes="16x16" rel="noopener" target="_blank" href="webfrontend/img/favicon_hat_16.png">
+    <link rel="icon" type="image/png" sizes="32x32" rel="noopener" target="_blank" href="webfrontend/img/favicon_hat_32.png">
+
+    <!-- Bootstrap -->
+    <link href="webfrontend/libs/bootstrap-5.3.2-dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="webfrontend/css/style.css" rel="stylesheet">
+
+    
+</head>
+
+<body>
+    <div id="container-spinner">
+        <img src="webfrontend/img/hp_hut.png" alt="Lädt...">
+    </div>
+    <div class="container-fluid h-100" id="container-main">
+        <div class="row mt-4 h-25">
+            <h1 id="heading">&copy;Hatbot</h1>
+        </div>
+
+        <div class="row gy-4 mb-3 h-75">
+
+            <!-- Chat -->
+            <div class="col-md align-self-end">
+                <div class="container-fluid" id="container-chat">
+
+                    <div class="row gy-2 align-items-end">
+
+                        <div class="col-auto">
+                            <div>
+                                <img src="webfrontend/img/hp_hut.png" class="img-fluid" width="90" alt="Sprechender Hut">
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="row" id="container-messages"></div>
+
+                            <div class="row gx-1 mt-4">
+                                <div class="col">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="input-message" placeholder="" aria-describedby="btn-send" onkeyup="if(event.keyCode == 13) handleSendMessage()">
+                                        <button type="button" class="btn btn-dark" id="btn-send" onclick="handleSendMessage()">></button>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="button" class="btn btn-dark" id="btn-speech" onclick="toggleSpeechMode()">
+                                        <img class="img-fluid" id="img-mic" src="webfrontend/img/mic_on.png">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Diagnostics -->
+        <div class="row mt-3" id="fixed-diagnostic">
+            <div class="col">
+                <div id="container-diagnostic"></div>
+            </div>
+        </div>
+
+
+        <script src="webfrontend/libs/jquery-3.7.1/jquery-3.7.1.min.js"></script>
+        <script src="webfrontend/libs/bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js"></script>
+
+        <script type="module">
+            import { handleSendMessage, toggleSpeechMode } from '/webfrontend/js/view.js';
+            window.handleSendMessage = handleSendMessage;
+            window.toggleSpeechMode = toggleSpeechMode;
+            // document.getElementById('#btn-speech').addEventListener('click', toggleSpeechMode);
+        </script>
+
+        <script>
+            window.onerror = (event, source, lineno, colno, error) => {
+                // if(error instanceof SyntaxError) {
+                if (error == 'SyntaxError: import assertions are not currently supported') {
+                    document.getElementById('container-spinner').innerHTML = '<h6>Bitte Chrome verwenden...</h6>';
+                    return;
+                }
+                console.log('event: ', event);
+                console.log('source: ', source);
+                console.log('lineno: ', lineno);
+                console.log('colno: ', colno);
+                console.log('error: ', error);
+            };
+        </script>
+</body>
+
+</html>
