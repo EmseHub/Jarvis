@@ -1,58 +1,14 @@
-from selenium.webdriver.common.by import By
-from selenium import webdriver
+from functions.web import requests_lib
+from functions.web import selenium_lib
 
 
-print("Selenium Test")
+# url = "https://www.google.com/search?q=wie+alt+ist+angela+merkel"
+# result = requests_lib.get_reponse_text(url)
 
 
-def test_0():
-    driver = webdriver.Chrome()
+question = "Wie alt ist Angela Merkel?"
 
-    driver.get("https://www.google.com/search?q=wie+alt+ist+angela+merkel")
+# result = selenium_lib.get_google_answer(question)
+result = selenium_lib.get_mscopilot_answer(question)
 
-    driver.implicitly_wait(0.5)
-
-    # text_box = driver.find_element(by=By.NAME, value="my-text")
-    # submit_button = driver.find_element(by=By.CSS_SELECTOR, value="button")
-    # by_class = driver.find_element(By.CLASS_NAME, "current-stage").get_attribute("textContent")
-    # message = driver.find_element(by=By.ID, value="message")
-
-    containing = driver.find_element(
-        by=By.XPATH, value="//*[contains(text(),'Jahre')]"
-    )
-
-    # text_box.send_keys("Selenium")
-    # submit_button.click()
-
-    text = containing.text
-
-    driver.quit()
-
-    print("Selenium Ergebnis")
-    print(text)
-
-    return text
-
-
-def test_a():
-    driver = webdriver.Chrome()
-
-    driver.get("https://www.selenium.dev/selenium/web/web-form.html")
-
-    title = driver.title
-
-    driver.implicitly_wait(0.5)
-
-    text_box = driver.find_element(by=By.NAME, value="my-text")
-    submit_button = driver.find_element(by=By.CSS_SELECTOR, value="button")
-
-    text_box.send_keys("Selenium")
-    submit_button.click()
-
-    message = driver.find_element(by=By.ID, value="message")
-    text = message.text
-
-    driver.quit()
-
-    print("Selenium Ergebnis")
-    print(text)
+print(result)

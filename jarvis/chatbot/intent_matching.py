@@ -1,7 +1,7 @@
 import json
 
 from HanTa import HanoverTagger as hanta
-from helpers.helpers import parse_json_file, replace_diacritics
+from helpers.helpers import parse_json_file, write_json_to_textfile, replace_diacritics
 
 
 def generate_intents_runtime(intents_with_diacritics):
@@ -33,10 +33,7 @@ def generate_intents_runtime(intents_with_diacritics):
         intent_runtime = {**intent, "patterns": patterns_tagged}
         intents_runtime.append(intent_runtime)
 
-    with open("tmp_intents_runtime.json", "w", encoding="utf-8") as file:
-        file.write(
-            json.dumps(intents_runtime, indent=4, ensure_ascii=False)
-        )
+    write_json_to_textfile("tmp_intents_runtime.json", intents_runtime)
 
     return intents_runtime
 

@@ -3,7 +3,7 @@ from operator import itemgetter
 
 from helpers.helpers import get_random_item_in_list, replace_diacritics
 from chatbot.entity_detection import detect_sth_in_text
-from main import test_0
+from functions.web import selenium_lib
 
 
 # region --------------------------- Task-Funtkionen ---------------------------
@@ -68,7 +68,9 @@ def process_task(state_running_task, tagged_tokens, message_raw, intent):
             )
         elif (running_task_name == "test_0"):
             state_running_task = None
-            response = test_0()
+            response = selenium_lib.get_mscopilot_answer_full(
+                message_raw_simple
+            )
         else:
             state_running_task, response = (None, response)
 
