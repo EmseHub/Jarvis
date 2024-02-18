@@ -10,6 +10,7 @@ hanta = "*"
 numpy = "*"
 flask = "*"
 selenium = "*"
+requests = "*"
 
 [dev-packages]
 
