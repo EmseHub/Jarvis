@@ -10,7 +10,7 @@ from helpers.helpers import write_text_to_textfile, remove_emojis
 
 def get_mscopilot_answer(question, is_short_answer=False):
 
-    if (not question and not question.strip()):
+    if not (question or question.strip()):
         return None
 
     driver = webdriver.Chrome()
@@ -21,23 +21,22 @@ def get_mscopilot_answer(question, is_short_answer=False):
     driver.implicitly_wait(5)
 
     # Datenschutzbedingungen ablehnen
-    button_ablehnen = driver.find_element(
-        By.ID, "bnp_btn_reject"
-    )
+    button_ablehnen = driver.find_element(By.ID, "bnp_btn_reject")
     button_ablehnen.click()
 
     # Text-Eingabe
-    shadow_root_lvl_1 = driver.find_element(
-        By.CSS_SELECTOR, ".cib-serp-main"
-    ).shadow_root
+    shadow_root_lvl_1 = driver.find_element(By.CSS_SELECTOR, ".cib-serp-main").shadow_root
 
-    textarea_search = shadow_root_lvl_1.find_element(
-        By.ID, "cib-action-bar-main"
-    ).shadow_root.find_element(
-        By.CSS_SELECTOR, "cib-text-input"
-    ).shadow_root.find_element(
-        By.ID, "searchbox"
+    textarea_search = (
+        shadow_root_lvl_1.find_element(By.ID, "cib-action-bar-main")
+        .shadow_root.find_element(By.CSS_SELECTOR, "cib-text-input")
+        .shadow_root.find_element(By.ID, "searchbox")
     )
+
+    # Falls eine kurze Antwort ausgegeben werden soll, Länge der Antwort beschränken
+    if is_short_answer:
+        max_length = 500
+        question = f"Antworte in maximal {max_length} Zeichen: {question}"
 
     textarea_search.send_keys(question)
     textarea_search.send_keys(Keys.ENTER)
@@ -47,27 +46,22 @@ def get_mscopilot_answer(question, is_short_answer=False):
     # Warten, bis Antwort vollständig ausgegeben ist (Kein "Antwort abbrechen")
     typing_indicator = shadow_root_lvl_1.find_element(
         By.ID, "cib-action-bar-main"
-    ).shadow_root.find_element(
-        By.CSS_SELECTOR, "cib-typing-indicator"
-    )
+    ).shadow_root.find_element(By.CSS_SELECTOR, "cib-typing-indicator")
 
-    while (typing_indicator.is_displayed()):
+    while typing_indicator.is_displayed():
         time.sleep(2)
 
     # Antwort auslesen
-    div_text_block = shadow_root_lvl_1.find_element(
-        By.ID, "cib-conversation-main"
-    ).shadow_root.find_element(
-        By.CSS_SELECTOR, "cib-chat-turn"
-    ).shadow_root.find_element(
-        By.CSS_SELECTOR, "cib-message-group.response-message-group"
-    ).shadow_root.find_element(
-        By.CSS_SELECTOR, "cib-message"
-    ).shadow_root.find_element(
-        By.CSS_SELECTOR, ".ac-textBlock"
+    div_text_block = (
+        shadow_root_lvl_1.find_element(By.ID, "cib-conversation-main")
+        .shadow_root.find_element(By.CSS_SELECTOR, "cib-chat-turn")
+        .shadow_root.find_element(By.CSS_SELECTOR, "cib-message-group.response-message-group")
+        .shadow_root.find_element(By.CSS_SELECTOR, "cib-message")
+        .shadow_root.find_element(By.CSS_SELECTOR, ".ac-textBlock")
     )
 
-    if (is_short_answer):
+    # Falls eine kurze Antwort ausgegeben werden soll, nur den ersten Absatz ausgeben
+    if is_short_answer:
         result = div_text_block.find_element(By.CSS_SELECTOR, "p").text
     else:
         result = div_text_block.text
@@ -75,6 +69,7 @@ def get_mscopilot_answer(question, is_short_answer=False):
     driver.quit()
 
     write_text_to_textfile("tmp_selenium_answer_raw.txt", result)
+
     # Antwort bereinigen
 
     # Emojis etc. entfernen
@@ -108,9 +103,7 @@ def get_google_answer(searchterm):
 
     # by_class = driver.find_element(By.CLASS_NAME, "current-stage").get_attribute("textContent")
 
-    containing = driver.find_element(
-        by=By.XPATH, value="//*[contains(text(),'Jahre')]"
-    )
+    containing = driver.find_element(by=By.XPATH, value="//*[contains(text(),'Jahre')]")
 
     text = containing.text
 

@@ -11,6 +11,8 @@ numpy = "*"
 flask = "*"
 selenium = "*"
 requests = "*"
+openai = "*"
+elevenlabs = "*"
 
 [dev-packages]
 
