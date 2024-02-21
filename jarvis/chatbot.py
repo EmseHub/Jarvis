@@ -1,8 +1,8 @@
 from operator import itemgetter
 
-from chatbot.preprocessing import get_tagged_tokens
-from chatbot.intent_matching import get_intent
-from chatbot.tasks import process_task
+from nlu_pipeline.preprocessing import get_tagged_tokens
+from nlu_pipeline.intent_matching import get_intent
+from tasks.task_management import process_task
 
 # Globale Variable über den aktuell bearbeiteten Task
 state_running_task = {}
@@ -23,7 +23,7 @@ def get_response(message):
     diagnostic = {
         "tagged_tokens": tagged_tokens,
         "intent": intent,
-        "state_running_task": state_running_task
+        "state_running_task": state_running_task,
     }
 
     return (response, diagnostic)

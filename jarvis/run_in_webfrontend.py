@@ -1,14 +1,10 @@
 from flask import Flask, render_template, request, jsonify, json
 
 
-from chatbot.chatbot import get_response
+from chatbot import get_response
 
 
-app = Flask(
-    __name__,
-    template_folder="webfrontend",
-    static_folder="webfrontend"
-)
+app = Flask(__name__, template_folder="webfrontend", static_folder="webfrontend")
 
 
 @app.get("/")
@@ -27,16 +23,12 @@ def response():
     data = json.loads(request.data)
     message = data["message"]
 
-    if (not message.strip()):
+    if not message.strip():
         return None
 
     response, diagnostic = get_response(message)
 
-    reply = {
-        "request": message,
-        "response": response,
-        "diagnostic": diagnostic
-    }
+    reply = {"request": message, "response": response, "diagnostic": diagnostic}
 
     return jsonify(reply)
     # Website und Objekt zurückgeben:

@@ -1,7 +1,5 @@
-from functions.web import requests_lib
-from functions.web import selenium_lib
-
-from functions.openai import chat_gpt
+from tasks.agents.web import requests_lib, selenium_lib
+from tasks.agents.openai import chat_gpt
 
 from speech_synthesis import elevenlabs_lib
 
@@ -12,7 +10,7 @@ from speech_synthesis import elevenlabs_lib
 
 question = "Wie alt ist Angela Merkel?"
 
-# result = selenium_lib.get_google_answer(question)
+result = selenium_lib.get_google_answer(question)
 
 # result = selenium_lib.get_mscopilot_answer(question, False)
 
@@ -21,6 +19,6 @@ question = "Wie alt ist Angela Merkel?"
 # print(result)
 
 
-elevenlabs_lib.play_speech(
-    "Nichts geht jemals weg, bevor es uns gelehrt hat, was wir wissen müssen."
-)
+# elevenlabs_lib.play_speech(
+#     "Nichts geht jemals weg, bevor es uns gelehrt hat, was wir wissen müssen."
+# )

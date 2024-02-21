@@ -1,41 +1,11 @@
 import re
 from operator import itemgetter
 
+from tasks import task_functions
+
 from helpers.helpers import get_random_item_in_list, replace_diacritics
-from chatbot.entity_detection import detect_sth_in_text
-from functions.web import selenium_lib
+from tasks.agents import web
 
-
-# region --------------------------- Task-Funtkionen ---------------------------
-def do_sth(state_running_task, message_processed, intent_tag):
-
-    if (not state_running_task or not message_processed or not intent_tag):
-        return {"state_running_task": state_running_task, "response": None}
-
-    if intent_tag == "ablehnung":
-        return {"state_running_task": None, "response": "Ich breche die Aufgabe ab."}
-
-    # String mit Rückfragen bei unvollständigen Angaben
-    query = ""
-
-    # Nachverfolgen, ob schon vor dieser Nachricht alle Daten vorlagen und es sich um eine Besätigung handeln kann
-    is_confirmation_possible = True
-
-    # Prüfen, ob noch Rückfragen vorliegen, oder alle relevanten Daten vorhanden sind
-    if (query):
-        return {"state_running_task": state_running_task, "response": query}
-
-    # Prüfen, ob mit der aktuellen Nachricht die Bestätigung erteilt wird
-    if ((not is_confirmation_possible) or (intent_tag != "zustimmung")):
-        query = "Nun denn, ich führe den Task aus, okay?"
-        return {"state_running_task": state_running_task, "response": query}
-
-    return {"state_running_task": None, "response": "Vielen Dank, der Task wurde ausgeführt."}
-
-# endregion --------------------------- Task-Funtkionen ---------------------------
-
-
-# region --------------------------- Steuerung der Task-Funktionen ---------------------------
 def process_task(state_running_task, tagged_tokens, message_raw, intent):
     '''Funktion, die die Fortsetzung eines bestehenden oder Eröffnung eines neu erkannten Tasks steuert. 
     Falls keine Ausgabe ausgeführt werden soll, wird ein simpler, im Intent vordefinierter Antwort-String zurückgegeben.'''
@@ -63,12 +33,11 @@ def process_task(state_running_task, tagged_tokens, message_raw, intent):
 
         if (running_task_name == "do_sth"):
             state_running_task, response = itemgetter("state_running_task", "response")(
-                do_sth(
-                    state_running_task, message_processed, intent_tag)
+                task_functions.do_sth(state_running_task, message_processed, intent_tag)
             )
         elif (running_task_name == "test_0"):
             state_running_task = None
-            response = selenium_lib.get_mscopilot_answer_full(
+            response = web.selenium_lib.get_mscopilot_answer_full(
                 message_raw_simple
             )
         else:
@@ -98,5 +67,3 @@ def process_task(state_running_task, tagged_tokens, message_raw, intent):
         response = get_random_item_in_list(intent["responses"])
 
     return {"state_running_task": state_running_task, "response": response}
-
-# endregion --------------------------- Steuerung der Task-Funktionen ---------------------------

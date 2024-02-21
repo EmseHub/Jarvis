@@ -1,22 +1,24 @@
 import json
 
-from chatbot.chatbot import get_response
+from chatbot import get_response
 
 
 def run_chatbot_in_terminal():
 
     tagged_tokens = intent = state_running_task = {}
 
-    opening_messsage = 'Okay, lass uns per Terminal chatten!\n' + \
-        '[Eingabe "task": Stand des aktuell bearbeiteten Tasks ausgeben]\n' + \
-        '[Eingabe "tokens": Ermittelte Tokens der letzten Nachricht ausgeben]\n' + \
-        '[Eingabe "exit": Chat beenden]'
+    opening_messsage = (
+        "Okay, lass uns per Terminal chatten!\n"
+        + '[Eingabe "task": Stand des aktuell bearbeiteten Tasks ausgeben]\n'
+        + '[Eingabe "tokens": Ermittelte Tokens der letzten Nachricht ausgeben]\n'
+        + '[Eingabe "exit": Chat beenden]'
+    )
     print(opening_messsage)
 
     while True:
         message = input().strip()
 
-        if (not message):
+        if not message:
             continue
 
         elif message.lower() == "task":
@@ -27,7 +29,7 @@ def run_chatbot_in_terminal():
             continue
 
         elif message.lower() == "exit":
-            print('> Danke! Bis bald!')
+            print("> Danke! Bis bald!")
             break
 
         response, diagnostic = get_response(message)
