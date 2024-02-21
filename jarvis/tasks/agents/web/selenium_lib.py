@@ -1,11 +1,20 @@
 import time
 import re
+import json
+
+import os.path
+
+import pickle
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
+from selenium.webdriver.chrome.options import Options
+
 from helpers.helpers import write_text_to_textfile, remove_emojis
+
+BROWSER_DATA_PATH = "jarvis/tasks/agents/web/browser_data"
 
 
 def get_mscopilot_answer(question, is_short_answer=False):
@@ -113,3 +122,109 @@ def get_google_answer(searchterm):
     print(text)
 
     return text
+
+
+def get_whatsapp_TODO():
+
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+
+    driver.get("https://web.whatsapp.com/")
+    driver.implicitly_wait(5)
+
+    cookies_file_name = "cookies_whatsapp.pkl"
+    local_storage_file_name = "local_storage_whatsapp.pkl"
+    load_cookies(driver, cookies_file_name)
+    load_local_storage(driver, local_storage_file_name)
+
+    # # Datenschutzbedingungen ablehnen
+    # button_ablehnen = driver.find_element(By.XPATH, "//*[ text() = 'Alle ablehnen' ]")
+    # button_ablehnen.click()
+
+    time.sleep(60)
+
+    save_cookies(driver, cookies_file_name)
+    save_local_storage(driver, local_storage_file_name)
+
+    driver.quit()
+
+    return "DONE"
+
+    # FIRST TIME
+    chrome_options = Options()
+    chrome_options.add_argument("user-data-dir=selenium")
+    driver = webdriver.Chrome(options=chrome_options)
+    # for selenium 4.15.2 options instead of chrome_options
+    # driver = webdriver.Chrome(options=chrome_options)
+    driver.get("www.google.de")
+
+    # NEXT TIME
+    # You need to: from selenium.webdriver.chrome.options import Options
+    chrome_options = Options()
+    chrome_options.add_argument("user-data-dir=selenium")
+    driver = webdriver.Chrome(options=chrome_options)
+    # for selenium 4.15.2 options instead of chrome_options
+    # driver = webdriver.Chrome(options=chrome_options)
+    driver.get("www.google.de")
+    # Now you can see the cookies, the settings, extensions, etc.,
+    # and the logins done in the previous session are present here.
+
+    return "DONE"
+
+
+def save_cookies(driver, file_name):
+    file_path = BROWSER_DATA_PATH + "/" + file_name
+    cookies = driver.get_cookies()
+    pickle.dump(cookies, open(file_path, "wb"))
+    # Serializing json
+    json_object = json.dumps(cookies, indent=4)
+    with open(BROWSER_DATA_PATH + "/" + "test_cookies.json", "w") as outfile:
+        outfile.write(json_object)
+
+
+def load_cookies(driver, file_name):
+    file_path = BROWSER_DATA_PATH + "/" + file_name
+    if os.path.exists(file_path):
+        print("Cookies da")
+        driver.delete_all_cookies()
+        cookies = pickle.load(open(file_path, "rb"))
+        for cookie in cookies:
+            driver.add_cookie(cookie)
+
+    driver.refresh()
+
+
+def save_local_storage(driver, file_name):
+    file_path = BROWSER_DATA_PATH + "/" + file_name
+    local_storage = driver.execute_script("return window.localStorage;")
+    pickle.dump(local_storage, open(file_path, "wb"))
+    # Serializing json
+    json_object = json.dumps(local_storage, indent=4)
+    with open(BROWSER_DATA_PATH + "/" + "test_local_storage.json", "w") as outfile:
+        outfile.write(json_object)
+
+
+def load_local_storage(driver, file_name):
+    file_path = BROWSER_DATA_PATH + "/" + file_name
+    if os.path.exists(file_path):
+        print("local_storage da")
+        local_storage = pickle.load(open(file_path, "rb"))
+
+        js_script = """
+        localStorage.clear();
+        let local_storage = arguments[0]
+        for (const key in local_storage) {
+            if (Object.hasOwnProperty.call(local_storage, key)) {
+                const element = local_storage[key];
+                localStorage.setItem(key, element);
+            }
+        }
+        """
+
+        driver.execute_script(js_script, local_storage)
+
+    driver.refresh()
+
+
+# sessionStorage
+# sessionStorage.setItem("key", "value");

@@ -10,13 +10,15 @@ from speech_synthesis import elevenlabs_lib
 
 question = "Wie alt ist Angela Merkel?"
 
-result = selenium_lib.get_google_answer(question)
+# result = selenium_lib.get_google_answer(question)
 
 # result = selenium_lib.get_mscopilot_answer(question, False)
 
 
 # result = chat_gpt.get_response("Wer ist eigentlich Angela?")
-# print(result)
+
+result = selenium_lib.get_whatsapp_TODO()
+print(result)
 
 
 # elevenlabs_lib.play_speech(
