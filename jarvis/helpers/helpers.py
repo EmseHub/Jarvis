@@ -3,18 +3,18 @@ import random
 import json
 
 
-def parse_json_file(file_path):
+def parse_object_from_jsonfile(file_path):
     with open(file_path, encoding="utf-8") as json_file:
         return json.load(json_file)
 
 
-def write_text_to_textfile(filepath, text):
-    with open(filepath, "w", encoding="utf-8") as file:
+def write_text_to_textfile(filepath, text, encoding="utf-8"):
+    with open(filepath, "w", encoding=encoding) as file:
         file.write(text)
 
 
-def write_object_to_jsonfile(filepath, object):
-    write_text_to_textfile(filepath, json.dumps(object, indent=4, ensure_ascii=False))
+def write_object_to_jsonfile(filepath, object, ensure_ascii=True):
+    write_text_to_textfile(filepath, json.dumps(object, indent=4, ensure_ascii=ensure_ascii))
 
 
 def get_random_item_in_list(my_list):

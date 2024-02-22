@@ -1,7 +1,7 @@
 import json
 
 from HanTa import HanoverTagger as hanta
-from helpers.helpers import parse_json_file, write_object_to_jsonfile, replace_diacritics
+from helpers.helpers import parse_object_from_jsonfile, write_object_to_jsonfile, replace_diacritics
 
 
 def generate_intents_runtime(intents_with_diacritics):
@@ -31,13 +31,15 @@ def generate_intents_runtime(intents_with_diacritics):
         intent_runtime = {**intent, "patterns": patterns_tagged}
         intents_runtime.append(intent_runtime)
 
-    write_object_to_jsonfile("tmp_intents_runtime.json", intents_runtime)
+    write_object_to_jsonfile("tmp_intents_runtime.json", intents_runtime, ensure_ascii=False)
 
     return intents_runtime
 
 
 # Aufbereitete Intents generieren und im Arbeitsspeicher halten
-intents_runtime = generate_intents_runtime(parse_json_file("jarvis/nlu_pipeline/intents.json"))
+intents_runtime = generate_intents_runtime(
+    parse_object_from_jsonfile("jarvis/nlu_pipeline/intents.json")
+)
 
 
 def get_intent(tagged_tokens):

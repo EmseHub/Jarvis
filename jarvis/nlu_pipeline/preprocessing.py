@@ -5,12 +5,12 @@ from nltk.tokenize import word_tokenize
 from spylls.hunspell import Dictionary
 from HanTa import HanoverTagger as hanta
 
-from helpers.helpers import parse_json_file
+from helpers.helpers import parse_object_from_jsonfile
 
 
 # Bekannte Begriffe, die aus Performanzgründen von der Rechtschreibkorrektur ausgenommen werden sollen
 words_not_to_correct = ["Muggel"]
-intents = parse_json_file("jarvis/nlu_pipeline/intents.json")
+intents = parse_object_from_jsonfile("jarvis/nlu_pipeline/intents.json")
 patterns = [pattern for intent in intents for pattern in intent.get("patterns")]
 words_not_to_correct += patterns
 

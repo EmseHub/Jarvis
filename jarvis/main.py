@@ -18,6 +18,7 @@ question = "Wie alt ist Angela Merkel?"
 # result = chat_gpt.get_response("Wer ist eigentlich Angela?")
 
 result = selenium_lib.get_whatsapp_TODO()
+# result = selenium_lib.automate_whatsapp()
 print(result)
 
 
