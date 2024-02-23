@@ -3,8 +3,13 @@ import random
 import json
 
 
-def parse_object_from_jsonfile(file_path):
-    with open(file_path, encoding="utf-8") as json_file:
+def parse_string_from_textfile(filepath, encoding="utf-8"):
+    with open(filepath, mode="r", encoding=encoding) as file:
+        return file.read()
+
+
+def parse_object_from_jsonfile(filepath):
+    with open(filepath, encoding="utf-8") as json_file:
         return json.load(json_file)
 
 

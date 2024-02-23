@@ -1,6 +1,5 @@
 import time
 import re
-import json
 
 import os.path
 
@@ -15,6 +14,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 
 from helpers.helpers import (
+    parse_string_from_textfile,
     parse_object_from_jsonfile,
     write_object_to_jsonfile,
     write_text_to_textfile,
@@ -118,6 +118,10 @@ def get_google_answer(searchterm):
 
     driver.implicitly_wait(5)
 
+    # # Datenschutzbedingungen ablehnen
+    # button_ablehnen = driver.find_element(By.XPATH, "//*[ text() = 'Alle ablehnen' ]")
+    # button_ablehnen.click()
+
     # by_class = driver.find_element(By.CLASS_NAME, "current-stage").get_attribute("textContent")
 
     containing = driver.find_element(by=By.XPATH, value="//*[contains(text(),'Jahre')]")
@@ -137,7 +141,7 @@ def automate_whatsapp():
     text = "Hey, this message was sent using Selenium"
     driver = webdriver.Chrome()
     driver.get("https://web.whatsapp.com")
-    print("QR-Code scannen und beliebige Taste drücken")
+    print("QR-Code scannen und Enter drücken")
     input()
     print("Angemeldet")
 
@@ -161,7 +165,7 @@ def automate_whatsapp():
     # input_new_msg_parent.send_keys(text + Keys.ENTER)
     input_new_msg_parent.send_keys(text)
 
-    print("Drücke beliebige Taste zum beenden")
+    print("Drücke Enter zum beenden")
     input()
 
     driver.quit()
@@ -177,24 +181,23 @@ def get_whatsapp_TODO():
     driver.get("https://web.whatsapp.com/")
     driver.implicitly_wait(5)
 
-    # print("QR-Code scannen und beliebige Taste drücken.")
-    # input()
-    # print("Angemeldet.")
-
     name_website = "whatsapp_web"
 
-    load_browser_data(driver, name_website)
+    is_browser_data_loaded = load_browser_data(driver, name_website)
+    (
+        print("Daten geladen. Zum Fortfahren Enter drücken.")
+        if is_browser_data_loaded
+        else print("Keine Daten vorhanden/geladen. Zum Fortfahren Enter drücken.")
+    )
+    input()
 
-    # # Datenschutzbedingungen ablehnen
-    # button_ablehnen = driver.find_element(By.XPATH, "//*[ text() = 'Alle ablehnen' ]")
-    # button_ablehnen.click()
-
-    print("LocalStorage geladen. Beliebige Taste zum Speichern drücken.")
+    print("Zum Speichern Enter drücken.")
     input()
 
     save_browser_data(driver, name_website)
+    print("Daten gespeichert.")
 
-    print("Beliebige Taste drücken, um Selenium zu beenden.")
+    print("Enter drücken, um Selenium zu beenden.")
     input()
 
     driver.quit()
@@ -241,11 +244,16 @@ def load_cookies(driver, name_website, is_refreshing_website=True):
             driver.add_cookie(cookie)
         if is_refreshing_website:
             driver.refresh()
+        return True
+    return False
 
 
 def save_local_storage(driver, name_website):
     filepath = f"{BROWSER_DATA_PATH}/local_storage_{name_website}.json"
     local_storage = driver.execute_script("return window.localStorage;")
+    for key in ["clear", "getItem", "key", "length", "removeItem", "setItem"]:
+        if key in local_storage:
+            del local_storage[key]
     # pickle.dump(local_storage, open(filepath, "wb"))
     write_object_to_jsonfile(filepath, local_storage)
 
@@ -271,11 +279,16 @@ def load_local_storage(driver, name_website, is_refreshing_website=True):
         driver.execute_script(js_script, local_storage)
         if is_refreshing_website:
             driver.refresh()
+        return True
+    return False
 
 
 def save_session_storage(driver, name_website):
     filepath = f"{BROWSER_DATA_PATH}/session_storage_{name_website}.json"
     session_storage = driver.execute_script("return window.sessionStorage;")
+    for key in ["clear", "getItem", "key", "length", "removeItem", "setItem"]:
+        if key in session_storage:
+            del session_storage[key]
     write_object_to_jsonfile(filepath, session_storage)
 
 
@@ -297,11 +310,16 @@ def load_session_storage(driver, name_website, is_refreshing_website=True):
         driver.execute_script(js_script, session_storage)
         if is_refreshing_website:
             driver.refresh()
+        return True
+    return False
 
 
 def save_indexed_db(driver, name_website):
     filepath = f"{BROWSER_DATA_PATH}/indexed_db_{name_website}.json"
-    indexed_db = driver.execute_script(open(SELENIUM_SCRIPTS_PATH + "/export_indexed_db.js").read())
+    # arguments[arguments.length - 1] (letztes Argument) macht Selenium immer zur Callback-Funktion
+    indexed_db = driver.execute_async_script(
+        parse_string_from_textfile(SELENIUM_SCRIPTS_PATH + "/export_indexed_db.js")
+    )
     write_object_to_jsonfile(filepath, indexed_db)
 
 
@@ -311,33 +329,37 @@ def load_indexed_db(driver, name_website, is_refreshing_website=True):
     if os.path.exists(filepath):
         print("indexed_db da")
         indexed_db = parse_object_from_jsonfile(filepath)
-
-        driver.execute_script(
-            open(SELENIUM_SCRIPTS_PATH + "/import_indexed_db.js").read(), indexed_db
+        # arguments[arguments.length - 1] (letztes Argument) macht Selenium immer zur Callback-Funktion
+        driver.execute_async_script(
+            parse_string_from_textfile(SELENIUM_SCRIPTS_PATH + "/import_indexed_db.js"), indexed_db
         )
-
         if is_refreshing_website:
             driver.refresh()
+        return True
+    return False
 
 
 def save_browser_data(driver, name_website):
 
-    save_cookies(driver, name_website, False)
-    save_local_storage(driver, name_website, False)
-    save_session_storage(driver, name_website, False)
-    save_indexed_db(driver, name_website, False)
+    save_cookies(driver, name_website)
+    save_local_storage(driver, name_website)
+    save_session_storage(driver, name_website)
+    save_indexed_db(driver, name_website)
 
 
 def load_browser_data(driver, name_website, is_refreshing_website=True):
 
-    load_cookies(driver, name_website, False)
-    load_local_storage(driver, name_website, False)
-    load_session_storage(driver, name_website, False)
-    load_indexed_db(driver, name_website, False)
+    is_cookies_loaded = load_cookies(driver, name_website, False)
+    is_local_storage_loaded = load_local_storage(driver, name_website, False)
+    is_session_storage_loaded = load_session_storage(driver, name_website, False)
+    is_indexed_db_loaded = load_indexed_db(driver, name_website, False)
 
-    if is_refreshing_website:
+    if is_refreshing_website and (
+        is_cookies_loaded
+        and is_local_storage_loaded
+        and is_session_storage_loaded
+        and is_indexed_db_loaded
+    ):
         driver.refresh()
-
-
-# sessionStorage
-# sessionStorage.setItem("key", "value");
+        return True
+    return False

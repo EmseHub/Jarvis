@@ -1,3 +1,5 @@
+const selenium_callback = arguments[arguments.length - 1];
+
 const openDb = (name, callback) => {
     const DBOpenRequest = window.indexedDB.open(name);
     DBOpenRequest.onerror = (event) => {
@@ -76,6 +78,6 @@ window.indexedDB.databases().then((dbs) => {
     pushDbsToResultLoop([], dbs, (callbackResult) => {
         console.log('----Ergebnis IndexedDB-Export----');
         console.log(callbackResult);
-        return callbackResult;
+        selenium_callback(callbackResult);
     });
 })
