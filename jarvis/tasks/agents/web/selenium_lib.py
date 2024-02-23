@@ -8,10 +8,10 @@ import pickle
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-
 from selenium.webdriver.chrome.options import Options
-
 from selenium.webdriver.support.wait import WebDriverWait
+
+from selenium.common import NoSuchElementException, ElementNotInteractableException
 
 from helpers.helpers import (
     parse_string_from_textfile,
@@ -175,21 +175,34 @@ def automate_whatsapp():
 
 def get_whatsapp_TODO():
 
-    driver = webdriver.Chrome()
-    driver.maximize_window()
+    options = webdriver.ChromeOptions()
+    # WebDriver führt Aktionen bereits aus, bevor document.readyState == "complete" (Default ist normal)
+    options.page_load_strategy = "none"
+    # options.addArguments("user-data-dir=/path/to/your/custom/profile")
+    options.add_argument("--start-maximized")
 
+    driver = webdriver.Chrome(options=options)
+    # wait = WebDriverWait(driver, 20)
     driver.get("https://web.whatsapp.com/")
+
+    # driver.maximize_window()
+
+    # driver.get("https://web.whatsapp.com/")
+
+    # Laden der Website abbrechen
+    driver.execute_script("window.stop();")
+
     driver.implicitly_wait(5)
 
     name_website = "whatsapp_web"
 
-    is_browser_data_loaded = load_browser_data(driver, name_website)
-    (
-        print("Daten geladen. Zum Fortfahren Enter drücken.")
-        if is_browser_data_loaded
-        else print("Keine Daten vorhanden/geladen. Zum Fortfahren Enter drücken.")
-    )
-    input()
+    is_browser_data_loaded = load_browser_data(driver, name_website, is_refreshing_website=False)
+
+    if is_browser_data_loaded:
+        print("Daten geladen.")
+    else:
+        print("Keine Daten vorhanden/geladen.")
+        driver.refresh()
 
     print("Zum Speichern Enter drücken.")
     input()
@@ -250,10 +263,9 @@ def load_cookies(driver, name_website, is_refreshing_website=True):
 
 def save_local_storage(driver, name_website):
     filepath = f"{BROWSER_DATA_PATH}/local_storage_{name_website}.json"
-    local_storage = driver.execute_script("return window.localStorage;")
-    for key in ["clear", "getItem", "key", "length", "removeItem", "setItem"]:
-        if key in local_storage:
-            del local_storage[key]
+    local_storage = driver.execute_script(
+        "return Object.assign(Object.create(null), window.localStorage);"
+    )
     # pickle.dump(local_storage, open(filepath, "wb"))
     write_object_to_jsonfile(filepath, local_storage)
 
@@ -285,10 +297,9 @@ def load_local_storage(driver, name_website, is_refreshing_website=True):
 
 def save_session_storage(driver, name_website):
     filepath = f"{BROWSER_DATA_PATH}/session_storage_{name_website}.json"
-    session_storage = driver.execute_script("return window.sessionStorage;")
-    for key in ["clear", "getItem", "key", "length", "removeItem", "setItem"]:
-        if key in session_storage:
-            del session_storage[key]
+    session_storage = driver.execute_script(
+        "return Object.assign(Object.create(null), window.sessionStorage);"
+    )
     write_object_to_jsonfile(filepath, session_storage)
 
 
@@ -354,12 +365,13 @@ def load_browser_data(driver, name_website, is_refreshing_website=True):
     is_session_storage_loaded = load_session_storage(driver, name_website, False)
     is_indexed_db_loaded = load_indexed_db(driver, name_website, False)
 
-    if is_refreshing_website and (
+    if (
         is_cookies_loaded
         and is_local_storage_loaded
         and is_session_storage_loaded
         and is_indexed_db_loaded
     ):
-        driver.refresh()
+        if is_refreshing_website:
+            driver.refresh()
         return True
     return False
