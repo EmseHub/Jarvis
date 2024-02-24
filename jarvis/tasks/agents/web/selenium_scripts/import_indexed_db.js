@@ -42,7 +42,7 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
         callback(null);
     };
 
-    // Neue DB erstellt oder Version einer bestehenden DB geändert
+    // onupgradeneeded --> Ausgelöst, wenn neue DB erstellt oder Version einer bestehenden DB geändert
     DBOpenRequest.onupgradeneeded = (event) => {
         // console.log('---onupgradeneeded---');
 
@@ -58,6 +58,7 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
                         "name": "some_table_name",
                         "keyPath": "sth",
                         // "primaryKeyPath": "some_id_or_key",
+                        "autoIncrement": false,
                         "indices": [
                             {
                                 "name": "index_name",
@@ -92,13 +93,15 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
         for (const importedObjectStore of dbObjectStores) {
 
             const name = importedObjectStore["name"];
-            const keyPath = importedObjectStore["keyPath"];
             // keyPath entspricht dem Primary Key
+            const keyPath = importedObjectStore["keyPath"];
+            const autoIncrement = importedObjectStore["autoIncrement"];
 
+            // autoIncrement immer auf false, um eigenen Wert zuzuweisen
+            const options = { autoIncrement: false };
+            if (keyPath) { options.keyPath = keyPath; }
 
-            const store = (keyPath)
-                ? db.createObjectStore(name, { keyPath: keyPath })
-                : db.createObjectStore(name);
+            const store = db.createObjectStore(name, options);
 
             for (const index of importedObjectStore["indices"]) {
                 store.createIndex(index["name"], index["keyPath"], index["options"]);
@@ -117,6 +120,7 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
 
             transaction.oncomplete = (event) => {
                 // console.log(`Alle Items von "${objectStoreName}" erfolgreich hinzugefügt.`);
+                db.close();
                 callbackAdd(true);
             };
             transaction.onerror = (event, source, lineno, colno, error) => {
@@ -129,10 +133,12 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
 
             // const importedObjectStore = dbObjectStores[objectStoreName];
             const importedObjectStore = dbObjectStores.find(os => os.name === objectStoreName);
+            const keyPath = importedObjectStore["keyPath"];
 
-            for (const index of importedObjectStore["indices"]) {
-                const cur = objectStore.index(index["name"]);
-            }
+            // Indices für Queries definieren
+            // for (const index of importedObjectStore["indices"]) {
+            //     const cur = objectStore.index(index["name"]);
+            // }
 
             for (const item of importedObjectStore["values"]) {
 
@@ -141,7 +147,10 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
 
                 // ANOTHER CONNECTION WANTS TO DELETE WAWC... ERROR
 
-                const putRequest = objectStore.put(item);
+                const putRequest = (keyPath)
+                    ? objectStore.put(item, keyPath)
+                    : objectStore.put(item);
+
                 putRequest.onsuccess = (event) => {
                     // console.log("Item hinzugefügt.", putRequest.result);
                     // console.log(newItem);
@@ -164,19 +173,19 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
         };
 
 
-        const addObjectStoreLoop = (objectStoreNames, callbackLoop) => {
+        const populateObjectStoreLoop = (objectStoreNames, callbackLoop) => {
             if (objectStoreNames.length === 0) {
                 callbackLoop(true);
                 return;
             }
             const curObjectStoreName = objectStoreNames.shift();
             putItems(curObjectStoreName, (isSuccessful) => {
-                addObjectStoreLoop(objectStoreNames, callbackLoop);
+                populateObjectStoreLoop(objectStoreNames, callbackLoop);
             });
 
         };
 
-        addObjectStoreLoop(dbObjectStores.map(os => os.name), (isSuccessful) => {
+        populateObjectStoreLoop(dbObjectStores.map(os => os.name), (isSuccessful) => {
             callback(db);
         });
     };

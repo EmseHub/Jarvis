@@ -28,6 +28,7 @@ const getAllObjectStores = (db, callback) => {
             //     .openCursor()
             const objectStore = transaction.objectStore(storeName);
             const keyPath = objectStore.keyPath;
+            const autoIncrement = objectStore.autoIncrement;
 
             const indices = [];
             const indexNames = objectStore.indexNames;
@@ -37,8 +38,8 @@ const getAllObjectStores = (db, callback) => {
                     name: index.name,
                     keyPath: index.keyPath,
                     options: {
-                        unique: index.unique,
-                        multiEntry: index.multiEntry
+                        "unique": index.unique,
+                        "multiEntry": index.multiEntry
                     }
                 });
             }
@@ -54,6 +55,7 @@ const getAllObjectStores = (db, callback) => {
                     const dbStore = {
                         "name": storeName,
                         "keyPath": keyPath,
+                        "autoIncrement": autoIncrement,
                         "indices": indices,
                         "values": allObjects
                     };
