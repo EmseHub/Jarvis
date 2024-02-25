@@ -48,16 +48,21 @@ const getAllObjectStores = (db, callback) => {
                 const cursor = event.target.result;
                 if (cursor) {
                     // Cursor holds value, put it into store data
-                    allObjects.push(cursor.value);
+                    // allObjects.push(cursor.value);
+                    allObjects.push({
+                        "primaryKey": cursor.primaryKey,
+                        "value": cursor.value
+                    });
+
                     cursor.continue();
                 } else {
-                    // No more values, store is done
+                    // No more items, store is done
                     const dbStore = {
                         "name": storeName,
                         "keyPath": keyPath,
                         "autoIncrement": autoIncrement,
                         "indices": indices,
-                        "values": allObjects
+                        "items": allObjects
                     };
                     dbStores.push(dbStore);
 

@@ -69,18 +69,21 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
                                 }
                             },
                         ],
-                        "values": [
+                        "items": [
                             {
-                                "some_id_or_key": 66,
-                                "sth": {
-                                    "algorithm": {
-                                        "name": "HKDF"
-                                    },
-                                    "extractable": false,
-                                    "type": "secret",
-                                    "usages": [
-                                        "deriveKey"
-                                    ]
+                                "primaryKey": 66,
+                                "value": {
+                                    "some_id_or_key": 66,
+                                    "sth": {
+                                        "algorithm": {
+                                            "name": "HKDF"
+                                        },
+                                        "extractable": false,
+                                        "type": "secret",
+                                        "usages": [
+                                            "deriveKey"
+                                        ]
+                                    }
                                 }
                             },
                         ]
@@ -93,13 +96,13 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
         for (const importedObjectStore of dbObjectStores) {
 
             const name = importedObjectStore["name"];
-            // keyPath entspricht dem Primary Key
             const keyPath = importedObjectStore["keyPath"];
-            const autoIncrement = importedObjectStore["autoIncrement"];
+            // const autoIncrement = importedObjectStore["autoIncrement"];
 
+            // keyPath entspricht dem, was in anderen DB der Primary Key ist
             // autoIncrement immer auf false, um eigenen Wert zuzuweisen
             const options = { autoIncrement: false };
-            if (keyPath) { options.keyPath = keyPath; }
+            if (keyPath !== null && keyPath !== undefined) { options.keyPath = keyPath; }
 
             const store = db.createObjectStore(name, options);
 
@@ -120,7 +123,6 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
 
             transaction.oncomplete = (event) => {
                 // console.log(`Alle Items von "${objectStoreName}" erfolgreich hinzugefügt.`);
-                db.close();
                 callbackAdd(true);
             };
             transaction.onerror = (event, source, lineno, colno, error) => {
@@ -131,25 +133,24 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
 
             const objectStore = transaction.objectStore(objectStoreName);
 
-            // const importedObjectStore = dbObjectStores[objectStoreName];
             const importedObjectStore = dbObjectStores.find(os => os.name === objectStoreName);
             const keyPath = importedObjectStore["keyPath"];
+
 
             // Indices für Queries definieren
             // for (const index of importedObjectStore["indices"]) {
             //     const cur = objectStore.index(index["name"]);
             // }
 
-            for (const item of importedObjectStore["values"]) {
+            for (const item of importedObjectStore["items"]) {
 
-                // https://www.freecodecamp.org/news/a-quick-but-complete-guide-to-indexeddb-25f030425501/
-                // https://stackoverflow.com/questions/73967282/how-to-use-indexeddb-with-selenium-in-javascript
+                const primaryKey = item["primaryKey"];
+                const value = item["value"];
 
-                // ANOTHER CONNECTION WANTS TO DELETE WAWC... ERROR
-
-                const putRequest = (keyPath)
-                    ? objectStore.put(item, keyPath)
-                    : objectStore.put(item);
+                // Wenn Object Store In-Line Keys verwendet ( = keyPath vorhanden), darf bei put kein Key-Argument übergeben werden
+                const putRequest = ((keyPath === null || keyPath === undefined) && (primaryKey !== null && primaryKey !== undefined))
+                    ? objectStore.put(value, primaryKey)
+                    : objectStore.put(value);
 
                 putRequest.onsuccess = (event) => {
                     // console.log("Item hinzugefügt.", putRequest.result);
@@ -159,16 +160,6 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
                     console.warn(`Error beim Hinzufügen (Put) eines Items: ${item}`);
                     console.warn(event);
                 }
-
-                // const objectStoreRequest = objectStore.add(newItem);
-                // objectStoreRequest.onsuccess = (event) => {
-                //     // console.log("Item hinzugefügt.", objectStoreRequest.result);
-                //     // console.log(newItem);
-                // };
-                // objectStoreRequest.onerror = (event, source, lineno, colno, error) => {
-                //     console.warn(`Error beim Hinzufügen Add) eines Items: ${error}`)
-                //     console.log(newItem);
-                // }
             }
         };
 
@@ -186,45 +177,12 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
         };
 
         populateObjectStoreLoop(dbObjectStores.map(os => os.name), (isSuccessful) => {
+            db.close();
             callback(db);
         });
     };
 };
 
-// const setDbFromObject = (db, importedDb, callback) => {
-
-//     const importedObjectStoreNames = Object.keys(importedDb);
-//     // const transaction = db.transaction(db.objectStoreNames, 'readwrite');
-//     const transaction = db.transaction(importedObjectStoreNames, 'readwrite');
-
-
-//     transaction.oncomplete = (event) => {
-//         console.log("Transaction abgeschlossen.");
-//         for (const importedStoreName of importedObjectStoreNames) {
-//             let count = 0;
-//             for (const toAdd of importedDb[importedStoreName]) {
-//                 const request = transaction.objectStore(importedStoreName).add(toAdd);
-//                 request.addEventListener('success', () => {
-//                     count++;
-//                     if (count === importedDb[importedStoreName].length) {
-//                         // Added all objects for this store
-//                         delete importedDb[importedStoreName];
-//                         if (Object.keys(importedDb).length === 0) {
-//                             // Added all object stores
-//                             callback(true);
-//                         }
-//                     }
-//                 });
-//             }
-//         }
-//     };
-
-//     transaction.onerror = (event) => {
-//         console.log("Transaction fehlgeschlagen.");
-//         callback(false);
-//     };
-
-// };
 
 const restoreDbsLoop = (indexed_db, callback) => {
     if (indexed_db.length === 0) {
