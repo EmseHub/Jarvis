@@ -183,16 +183,17 @@ def get_whatsapp_TODO():
 
     driver = webdriver.Chrome(options=options)
     # wait = WebDriverWait(driver, 20)
+
     driver.get("https://web.whatsapp.com/")
-
-    # driver.maximize_window()
-
-    # driver.get("https://web.whatsapp.com/")
 
     # Laden der Website abbrechen
     driver.execute_script("window.stop();")
 
-    driver.implicitly_wait(5)
+    # driver.implicitly_wait(5)
+
+    # execute a script (first) on every page load
+    # lib_script = parse_string_from_textfile("jarvis/tasks/agents/web/js_libs/dexie.min.js")
+    # driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": lib_script})
 
     name_website = "whatsapp_web"
 
@@ -264,7 +265,7 @@ def load_cookies(driver, name_website, is_refreshing_website=True):
 def save_local_storage(driver, name_website):
     filepath = f"{BROWSER_DATA_PATH}/local_storage_{name_website}.json"
     local_storage = driver.execute_script(
-        "return Object.assign(Object.create(null), window.localStorage);"
+        parse_string_from_textfile(SELENIUM_SCRIPTS_PATH + "/export_local_storage.js")
     )
     # pickle.dump(local_storage, open(filepath, "wb"))
     write_object_to_jsonfile(filepath, local_storage)
@@ -276,19 +277,10 @@ def load_local_storage(driver, name_website, is_refreshing_website=True):
         print("local_storage da")
         # local_storage = pickle.load(open(filepath, "rb"))
         local_storage = parse_object_from_jsonfile(filepath)
-
-        js_script = """
-        window.localStorage.clear();
-        const local_storage = arguments[0];
-        for (const key in local_storage) {
-            if (Object.hasOwnProperty.call(local_storage, key)) {
-                const element = local_storage[key];
-                window.localStorage.setItem(key, element);
-            }
-        }
-        """
-
-        driver.execute_script(js_script, local_storage)
+        driver.execute_script(
+            parse_string_from_textfile(SELENIUM_SCRIPTS_PATH + "/import_local_storage.js"),
+            local_storage,
+        )
         if is_refreshing_website:
             driver.refresh()
         return True
@@ -298,7 +290,7 @@ def load_local_storage(driver, name_website, is_refreshing_website=True):
 def save_session_storage(driver, name_website):
     filepath = f"{BROWSER_DATA_PATH}/session_storage_{name_website}.json"
     session_storage = driver.execute_script(
-        "return Object.assign(Object.create(null), window.sessionStorage);"
+        parse_string_from_textfile(SELENIUM_SCRIPTS_PATH + "/export_session_storage.js")
     )
     write_object_to_jsonfile(filepath, session_storage)
 
@@ -308,17 +300,10 @@ def load_session_storage(driver, name_website, is_refreshing_website=True):
     if os.path.exists(filepath):
         print("session_storage da")
         session_storage = parse_object_from_jsonfile(filepath)
-        js_script = """
-        window.sessionStorage.clear();
-        const session_storage = arguments[0];
-        for (const key in session_storage) {
-            if (Object.hasOwnProperty.call(session_storage, key)) {
-                const element = session_storage[key];
-                window.sessionStorage.setItem(key, element);
-            }
-        }
-        """
-        driver.execute_script(js_script, session_storage)
+        driver.execute_script(
+            parse_string_from_textfile(SELENIUM_SCRIPTS_PATH + "/import_session_storage.js"),
+            session_storage,
+        )
         if is_refreshing_website:
             driver.refresh()
         return True
@@ -327,7 +312,7 @@ def load_session_storage(driver, name_website, is_refreshing_website=True):
 
 def save_indexed_db(driver, name_website):
     filepath = f"{BROWSER_DATA_PATH}/indexed_db_{name_website}.json"
-    # arguments[arguments.length - 1] (letztes Argument) macht Selenium immer zur Callback-Funktion
+    # arguments[arguments.length - 1] (last argument) is used by Selenium as callback funktion
     indexed_db = driver.execute_async_script(
         parse_string_from_textfile(SELENIUM_SCRIPTS_PATH + "/export_indexed_db.js")
     )
@@ -340,9 +325,36 @@ def load_indexed_db(driver, name_website, is_refreshing_website=True):
     if os.path.exists(filepath):
         print("indexed_db da")
         indexed_db = parse_object_from_jsonfile(filepath)
-        # arguments[arguments.length - 1] (letztes Argument) macht Selenium immer zur Callback-Funktion
+        # arguments[arguments.length - 1] (last argument) is used by Selenium as callback funktion
         driver.execute_async_script(
             parse_string_from_textfile(SELENIUM_SCRIPTS_PATH + "/import_indexed_db.js"), indexed_db
+        )
+        if is_refreshing_website:
+            driver.refresh()
+        return True
+    return False
+
+
+def save_cache_storage(driver, name_website):
+    filepath = f"{BROWSER_DATA_PATH}/cache_storage_{name_website}.json"
+    # arguments[arguments.length - 1] (last argument) is used by Selenium as callback funktion
+    cache_storage = driver.execute_async_script(
+        parse_string_from_textfile(SELENIUM_SCRIPTS_PATH + "/export_cache_storage.js")
+    )
+    # write_object_to_jsonfile(filepath, cache_storage)
+    write_object_to_jsonfile(filepath, cache_storage, ensure_ascii=False)
+
+
+def load_cache_storage(driver, name_website, is_refreshing_website=True):
+    filepath = f"{BROWSER_DATA_PATH}/cache_storage_{name_website}.json"
+
+    if os.path.exists(filepath):
+        print("cache_storage da")
+        cache_storage = parse_object_from_jsonfile(filepath)
+        # arguments[arguments.length - 1] (last argument) is used by Selenium as callback funktion
+        driver.execute_async_script(
+            parse_string_from_textfile(SELENIUM_SCRIPTS_PATH + "/import_cache_storage.js"),
+            cache_storage,
         )
         if is_refreshing_website:
             driver.refresh()
@@ -356,6 +368,7 @@ def save_browser_data(driver, name_website):
     save_local_storage(driver, name_website)
     save_session_storage(driver, name_website)
     save_indexed_db(driver, name_website)
+    save_cache_storage(driver, name_website)
 
 
 def load_browser_data(driver, name_website, is_refreshing_website=True):
@@ -364,12 +377,14 @@ def load_browser_data(driver, name_website, is_refreshing_website=True):
     is_local_storage_loaded = load_local_storage(driver, name_website, False)
     is_session_storage_loaded = load_session_storage(driver, name_website, False)
     is_indexed_db_loaded = load_indexed_db(driver, name_website, False)
+    is_cache_storage_loaded = load_cache_storage(driver, name_website, False)
 
     if (
         is_cookies_loaded
         and is_local_storage_loaded
         and is_session_storage_loaded
         and is_indexed_db_loaded
+        and is_cache_storage_loaded
     ):
         if is_refreshing_website:
             driver.refresh()

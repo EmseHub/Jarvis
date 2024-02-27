@@ -270,3 +270,17 @@ request.onsuccess = function () {
         db.close();
     };
 };
+
+
+
+navigator.storage.estimate().then((estimate) => {
+    const available = estimate?.quota;
+    const usedTotal = estimate?.usage;
+    const usedCaches = estimate?.usageDetails?.caches;
+    const usedIndexedDB = estimate?.usageDetails?.indexedDB;
+
+    console.log("available: ", (available / 1024 / 1024).toFixed(2) + " MB");
+    console.log("usedTotal: ", (usedTotal / 1024 / 1024).toFixed(2) + " MB");
+    console.log("usedCaches: ", (usedCaches / 1024 / 1024).toFixed(2) + " MB");
+    console.log("usedIndexedDB: ", (usedIndexedDB / 1024 / 1024).toFixed(2) + " MB");
+});

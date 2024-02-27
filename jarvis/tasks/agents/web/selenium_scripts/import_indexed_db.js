@@ -1,36 +1,45 @@
+const indexedDbToImport = arguments[0];
 const selenium_callback = arguments[arguments.length - 1];
 
-// const deleteDb = (name, callback) => {
-//     const DBDeleteRequest = window.indexedDB.deleteDatabase(name);
-//     DBDeleteRequest.onerror = (event) => {
-//         console.warn(`IndexedDB "${name}" konnte nicht gelöscht werden.`);
-//         callback(false);
-//     };
-//     DBDeleteRequest.onsuccess = (event) => {
-//         console.log(`IndexedDB "${name}" erfolgreich gelöscht.`);
-//         callback(true);
-//     };
-// }
 
-// const clearDbs = (callback) => {
-//     window.indexedDB.databases().then((dbs) => {
-//         const clearDbsLoop = (dbs, callbackLoop) => {
-//             if (dbs.length === 0) {
-//                 callbackLoop(true);
-//                 return;
-//             }
-//             const curDb = dbs.shift();
-//             deleteDb(curDb.name, (isSuccessful) => {
-//                 clearDbsLoop(dbs, callbackLoop);
-//             });
-//         };
+const putItemsIntoDb = (openedDb, objectStoreToImport, callbackPut) => {
 
-//         clearDbsLoop(dbs, (callbackLoopResult) => {
-//             console.log('----IndexedDB-Löschung abgeschlossen----');
-//             callback(true);
-//         });
-//     });
-// };
+    const transaction = openedDb.transaction([objectStoreToImport.name], "readwrite");
+
+    transaction.oncomplete = (event) => {
+        // console.log(`Alle Items von "${objectStoreName.name}" erfolgreich hinzugefügt.`);
+        callbackPut(true);
+    };
+    transaction.onerror = (event, source, lineno, colno, error) => {
+        console.warn(`Error beim hinzufügen der Items von "${objectStoreToImport.name}"`);
+        console.warn(event);
+        callbackPut(false);
+    };
+
+    const objectStore = transaction.objectStore(objectStoreToImport.name);
+    const keyPath = objectStoreToImport["keyPath"];
+
+    for (const item of objectStoreToImport["items"]) {
+
+        const primaryKey = item["primaryKey"];
+        const value = item["value"];
+
+        // Wenn Object Store In-Line Keys verwendet ( = keyPath vorhanden), darf bei put kein Key-Argument übergeben werden
+        const putRequest = ((keyPath === null || keyPath === undefined) && (primaryKey !== null && primaryKey !== undefined))
+            ? objectStore.put(value, primaryKey)
+            : objectStore.put(value);
+
+        putRequest.onsuccess = (event) => {
+            // console.log("Item hinzugefügt.", putRequest.result);
+            // console.log(newItem);
+        };
+        putRequest.onerror = (event) => {
+            console.warn(`Error beim Hinzufügen (Put) eines Items: ${item}`);
+            console.warn(event);
+        }
+    }
+};
+
 
 const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
 
@@ -39,15 +48,14 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
     DBOpenRequest.onerror = (event) => {
         console.warn(`IndexedDB "${dbName}" konnte nicht erstellt werden.`);
         console.warn(error);
-        callback(null);
+        callback(false);
     };
 
-    // onupgradeneeded --> Ausgelöst, wenn neue DB erstellt oder Version einer bestehenden DB geändert
+    // onupgradeneeded --> Triggered when a new DB is created or the version of an existing DB is changed
     DBOpenRequest.onupgradeneeded = (event) => {
-        // console.log('---onupgradeneeded---');
 
-        // Neue DB in Konstante speichern
-        const db = DBOpenRequest.result;
+        // Save new DB in constant
+        const upgradingDb = DBOpenRequest.result;
 
         const sample_export = [
             {
@@ -92,21 +100,21 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
             },
         ];
 
-        // Object Stores in DB anlegen (ein Object Store entspricht einer Tabelle)
-        for (const importedObjectStore of dbObjectStores) {
+        // Create object stores in DB (an object store corresponds to a table)
+        for (const objectStoreToImport of dbObjectStores) {
 
-            const name = importedObjectStore["name"];
-            const keyPath = importedObjectStore["keyPath"];
-            // const autoIncrement = importedObjectStore["autoIncrement"];
+            const name = objectStoreToImport["name"];
+            const keyPath = objectStoreToImport["keyPath"];
+            const autoIncrement = objectStoreToImport["autoIncrement"];
 
             // keyPath entspricht dem, was in anderen DB der Primary Key ist
             // autoIncrement immer auf false, um eigenen Wert zuzuweisen
-            const options = { autoIncrement: false };
+            const options = { autoIncrement: autoIncrement };
             if (keyPath !== null && keyPath !== undefined) { options.keyPath = keyPath; }
 
-            const store = db.createObjectStore(name, options);
+            const store = upgradingDb.createObjectStore(name, options);
 
-            for (const index of importedObjectStore["indices"]) {
+            for (const index of objectStoreToImport["indices"]) {
                 store.createIndex(index["name"], index["keyPath"], index["options"]);
             }
         }
@@ -115,113 +123,60 @@ const createDb = ({ dbName, dbVersion, dbObjectStores }, callback) => {
     DBOpenRequest.onsuccess = (event) => {
         console.log(`IndexedDB "${dbName}" erfolgreich erstellt.`);
 
-        const db = DBOpenRequest.result;
+        const openedDb = DBOpenRequest.result;
 
-        const putItems = (objectStoreName, callbackAdd) => {
-
-            const transaction = db.transaction([objectStoreName], "readwrite");
-
-            transaction.oncomplete = (event) => {
-                // console.log(`Alle Items von "${objectStoreName}" erfolgreich hinzugefügt.`);
-                callbackAdd(true);
-            };
-            transaction.onerror = (event, source, lineno, colno, error) => {
-                console.warn(`Error beim hinzufügen der Items von "${objectStoreName}"`);
-                console.warn(event);
-                callbackAdd(false);
-            };
-
-            const objectStore = transaction.objectStore(objectStoreName);
-
-            const importedObjectStore = dbObjectStores.find(os => os.name === objectStoreName);
-            const keyPath = importedObjectStore["keyPath"];
-
-
-            // Indices für Queries definieren
-            // for (const index of importedObjectStore["indices"]) {
-            //     const cur = objectStore.index(index["name"]);
-            // }
-
-            for (const item of importedObjectStore["items"]) {
-
-                const primaryKey = item["primaryKey"];
-                const value = item["value"];
-
-                // Wenn Object Store In-Line Keys verwendet ( = keyPath vorhanden), darf bei put kein Key-Argument übergeben werden
-                const putRequest = ((keyPath === null || keyPath === undefined) && (primaryKey !== null && primaryKey !== undefined))
-                    ? objectStore.put(value, primaryKey)
-                    : objectStore.put(value);
-
-                putRequest.onsuccess = (event) => {
-                    // console.log("Item hinzugefügt.", putRequest.result);
-                    // console.log(newItem);
-                };
-                putRequest.onerror = (event) => {
-                    console.warn(`Error beim Hinzufügen (Put) eines Items: ${item}`);
-                    console.warn(event);
+        let populatedCount = 0;
+        for (const objectStoreToImport of dbObjectStores) {
+            putItemsIntoDb(openedDb, objectStoreToImport, (cbIsPut) => {
+                populatedCount++;
+                if (populatedCount === dbObjectStores.length) {
+                    openedDb.close();
+                    callback(cbIsPut);
                 }
-            }
-        };
-
-
-        const populateObjectStoreLoop = (objectStoreNames, callbackLoop) => {
-            if (objectStoreNames.length === 0) {
-                callbackLoop(true);
-                return;
-            }
-            const curObjectStoreName = objectStoreNames.shift();
-            putItems(curObjectStoreName, (isSuccessful) => {
-                populateObjectStoreLoop(objectStoreNames, callbackLoop);
             });
-
-        };
-
-        populateObjectStoreLoop(dbObjectStores.map(os => os.name), (isSuccessful) => {
-            db.close();
-            callback(db);
-        });
+        }
     };
 };
 
 
-const restoreDbsLoop = (indexed_db, callback) => {
-    if (indexed_db.length === 0) {
-        callback(true);
-        return;
+const denormalizeValuesForImport = (obj) => {
+    const checkIfValueWasArrayBuffer = (value) => value && typeof value === "object" && value.constructor === Object && value.hasOwnProperty("_isArrayBuffer_");
+    const checkIfValueWasDate = (value) => (value && typeof value === "object" && value.constructor === Object && value.hasOwnProperty("_isDate_"));
+
+    const stack = [obj];
+    while (stack?.length > 0) {
+        const currentObj = stack.pop();
+        Object.keys(currentObj).forEach(key => {
+            const value = currentObj[key];
+            if (checkIfValueWasArrayBuffer(value)) {
+                const uint8Array = Uint8Array.from(value["_Uint8Array_"]);
+                currentObj[key] = uint8Array.buffer;
+            }
+            else if (checkIfValueWasDate(value)) {
+                currentObj[key] = new Date(value["_ISOString_"]);
+            }
+            else if (typeof currentObj[key] === "object" && currentObj[key] !== null) {
+                // Only iterate through nested value if it hasn't been changed and has a value  
+                stack.push(currentObj[key]);
+            }
+        });
     }
-    const cur_indexed_db = indexed_db.shift();
-    createDb(cur_indexed_db, (createdDb) => {
-
-        restoreDbsLoop(indexed_db, callback);
-
-        // if (createdDb) {
-        //     setDbFromObject(createdDb, cur_indexed_db.dbObjectStores, (isSuccessful) => {
-
-        //         restoreDbsLoop(indexed_db, callback);
-
-        //     });
-        // }
-        // else {
-        //     restoreDbsLoop(indexed_db, callback);
-        // }
-    });
 };
 
 
-
-
-const indexed_db = arguments[0];
-restoreDbsLoop(indexed_db, (isDone) => {
-    console.log('Alle Einträge der IndexedDB eingelesen.');
+if (!indexedDbToImport || indexedDbToImport.length === 0) {
     selenium_callback(true);
-});
-
-
-// clearDbs((dbsCleared) => {
-//     console.log('Alle Einträge der IndexedDB gelöscht.');
-//     const indexed_db = arguments[0];
-//     restoreDbsLoop(indexed_db, (isDone) => {
-//         console.log('Alle Einträge der IndexedDB eingelesen.');
-//         selenium_callback(true);
-//     });
-// });
+}
+else {
+    denormalizeValuesForImport(indexedDbToImport);
+    let importedDbsCount = 0;
+    for (const db of indexedDbToImport) {
+        createDb(db, (cbIsCreated) => {
+            importedDbsCount++;
+            if (importedDbsCount === indexedDbToImport.length) {
+                console.log("Alle Einträge der IndexedDB eingelesen.");
+                selenium_callback(true);
+            }
+        });
+    }
+}

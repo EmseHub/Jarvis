@@ -41,3 +41,38 @@ window.indexedDB.databases().then((dbs) => {
 
 //     clearDbs(dbs, () => { console.log('Alle Einträge der IndexedDB gelöscht.'); });
 // });
+
+
+// ------ODER------
+
+// const deleteDb = (name, callback) => {
+//     const DBDeleteRequest = window.indexedDB.deleteDatabase(name);
+//     DBDeleteRequest.onerror = (event) => {
+//         console.warn(`IndexedDB "${name}" konnte nicht gelöscht werden.`);
+//         callback(false);
+//     };
+//     DBDeleteRequest.onsuccess = (event) => {
+//         console.log(`IndexedDB "${name}" erfolgreich gelöscht.`);
+//         callback(true);
+//     };
+// }
+
+// const clearDbs = (callback) => {
+//     window.indexedDB.databases().then((dbs) => {
+//         const clearDbsLoop = (dbs, callbackLoop) => {
+//             if (dbs.length === 0) {
+//                 callbackLoop(true);
+//                 return;
+//             }
+//             const curDb = dbs.shift();
+//             deleteDb(curDb.name, (isSuccessful) => {
+//                 clearDbsLoop(dbs, callbackLoop);
+//             });
+//         };
+
+//         clearDbsLoop(dbs, (callbackLoopResult) => {
+//             console.log("Löschen der IndexedDB abgeschlossen.");
+//             callback(true);
+//         });
+//     });
+// };
