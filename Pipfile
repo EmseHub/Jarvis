@@ -13,6 +13,7 @@ selenium = "*"
 requests = "*"
 openai = "*"
 elevenlabs = "*"
+requests-html = "*"
 
 [dev-packages]
 

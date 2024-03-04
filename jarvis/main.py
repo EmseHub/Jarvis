@@ -1,24 +1,25 @@
-from tasks.agents.web import requests_lib, selenium_lib
-from tasks.agents.openai import chat_gpt
+from tasks.agents import selenium_lib, requests_lib, requests_html_lib, openai
+import asyncio
+
 
 from speech_synthesis import elevenlabs_lib
 
 
-# url = "https://www.google.com/search?q=wie+alt+ist+angela+merkel"
-# result = requests_lib.get_reponse_text(url)
+url = "https://www.google.com/search?q=wie+alt+ist+angela+merkel"
+# result = requests_lib.requests_lib.get_reponse_text(url)
+
+result = requests_html_lib.requests_html_lib.wer_streamt_es("Dune")
 
 
-question = "Wie alt ist Angela Merkel?"
+# question = "Wie alt ist Angela Merkel?"
+# result = selenium_lib.google.get_google_answer(question)
 
-# result = selenium_lib.get_google_answer(question)
-
-# result = selenium_lib.get_mscopilot_answer(question, False)
+# result = selenium_lib.ms_copilot.get_mscopilot_answer(question, is_short_answer=True)
 
 
-# result = chat_gpt.get_response("Wer ist eigentlich Angela?")
+# result = openai.chat_gpt.get_response("Wer ist eigentlich Angela?")
 
-result = selenium_lib.get_whatsapp_TODO()
-# result = selenium_lib.automate_whatsapp()
+# result = selenium_lib.whatsapp.get_whatsapp_TODO()
 print(result)
 
 
