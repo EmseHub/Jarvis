@@ -7,7 +7,7 @@ def get_reponse_text(url):
 
     response = requests.get(url)
 
-    print('Status Code:')
+    print("Status Code:")
     print(response.status_code)
 
     response_text = response.text
