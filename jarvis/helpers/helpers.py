@@ -1,6 +1,11 @@
 import re
+import string
 import random
 import json
+import urllib.parse
+
+
+# -------------------- FILES --------------------
 
 
 def parse_string_from_textfile(filepath, encoding="utf-8"):
@@ -22,8 +27,43 @@ def write_object_to_jsonfile(filepath, object, ensure_ascii=True):
     write_text_to_textfile(filepath, json.dumps(object, indent=4, ensure_ascii=ensure_ascii))
 
 
+# -------------------- LISTS --------------------
+
+
 def get_random_item_in_list(my_list):
     return random.choice(my_list) if (my_list and isinstance(my_list, list)) else None
+
+
+# -------------------- STRINGS --------------------
+
+
+def remove_punctuation(text):
+    return text.translate(str.maketrans("", "", string.punctuation))
+
+
+def remove_words_first_occurances(text, words_to_remove):
+    for word_to_remove in words_to_remove:
+        text = re.sub(rf"\b{re.escape(word_to_remove)}\b", "", text, count=1, flags=re.IGNORECASE)
+    return text
+
+
+def extract_values_in_syntax(text, start, end, is_case_sensitive=False):
+    flag = 0 if is_case_sensitive else re.IGNORECASE
+    return re.findall(rf"{re.escape(start)}(.*?){re.escape(end)}", text, flag)
+
+
+def extract_values_in_multiple_syntaxes(text, start_end_pairs, is_case_sensitive=False):
+    values = []
+    while start_end_pairs:
+        start_end_pair = start_end_pairs.pop(0)
+        values += extract_values_in_syntax(
+            text, start_end_pair[0], start_end_pair[1], is_case_sensitive
+        )
+    return values
+
+
+def url_encode(text):
+    return urllib.parse.quote_plus(text)
 
 
 def replace_diacritics(text):

@@ -164,5 +164,6 @@ cython_debug/
 
 # Tempfiles
 tmp_intents_runtime.json
+tmp_get_response.html
 **/browser_data/*
 !**/browser_data/.gitkeep 

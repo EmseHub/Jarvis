@@ -25,6 +25,20 @@
 
 
     {
+        "tag": "check_where_to_stream_media",
+        "min_hits": 2,
+        "patterns": [
+            "wer",
+            "wo",
+            "welcher",
+            "streamt",
+            "streame",
+            "streamen"
+        ],
+        "responses": [],
+        "task": "check_where_to_stream_media"
+    },
+    {
         "tag": "test_0",
         "min_hits": 1,
         "patterns": [
