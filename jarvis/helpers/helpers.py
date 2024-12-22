@@ -1,3 +1,4 @@
+import collections
 import re
 import string
 import random
@@ -33,14 +34,18 @@ def play_audio_file(file_path, is_blocking=True):
     if not file_path.strip():
         return
     file_path = file_path.replace("\\\\", "\\").replace("\\", "/")
-    playsound(file_path, block=is_blocking)
+    try:
+        is_blocking = True
+        playsound(file_path, block=is_blocking)
+    except Exception as e:
+        print("Unerwarteter Fehler bei der Audiowiedergabe:", e)
 
 
-# -------------------- LISTS --------------------
+# -------------------- SEQUENCE (LISTS/TUPELS) --------------------
 
 
-def get_random_item_in_list(my_list):
-    return random.choice(my_list) if (my_list and isinstance(my_list, list)) else None
+def get_random_item(sequence):
+    return random.choice(sequence) if (sequence and isinstance(sequence, collections.abc.Sequence)) else None
 
 
 # -------------------- STRINGS --------------------
@@ -50,24 +55,40 @@ def remove_punctuation(text):
     return text.translate(str.maketrans("", "", string.punctuation))
 
 
-def remove_words_first_occurances(text, words_to_remove):
-    for word_to_remove in words_to_remove:
-        text = re.sub(rf"\b{re.escape(word_to_remove)}\b", "", text, count=1, flags=re.IGNORECASE)
+def remove_expressions_first_occurances(
+    text: str, expressions_to_remove: list[str], is_word_boundary: bool = True, is_case_sensitive: bool = False
+):
+    boundary_token = r"\b" if is_word_boundary else ""
+    flag = 0 if is_case_sensitive else re.IGNORECASE
+    for expression_to_remove in expressions_to_remove:
+        if expression_to_remove:
+            text = re.sub(
+                rf"{boundary_token}{re.escape(expression_to_remove)}{boundary_token}", "", text, count=1, flags=flag
+            )
+    return text.lstrip()
+
+
+def remove_expressions_at_start(
+    text: str, expressions_to_remove: list[str], is_word_boundary: bool = True, is_case_sensitive: bool = False
+):
+    whitespace_token = r"\s+" if is_word_boundary else r"\s*"
+    flag = 0 if is_case_sensitive else re.IGNORECASE
+    for expression_to_remove in expressions_to_remove:
+        if expression_to_remove:
+            text = re.sub(rf"^\s*{re.escape(expression_to_remove)}{whitespace_token}", "", text, count=1, flags=flag)
     return text
 
 
-def extract_values_in_syntax(text, start, end, is_case_sensitive=False):
+def extract_values_in_syntax(text: str, start: str, end: str, is_case_sensitive: bool = False):
     flag = 0 if is_case_sensitive else re.IGNORECASE
     return re.findall(rf"{re.escape(start)}(.*?){re.escape(end)}", text, flag)
 
 
-def extract_values_in_multiple_syntaxes(text, start_end_pairs, is_case_sensitive=False):
+def extract_values_in_multiple_syntaxes(text: str, start_end_pairs: list[tuple], is_case_sensitive: bool = False):
     values = []
     while start_end_pairs:
         start_end_pair = start_end_pairs.pop(0)
-        values += extract_values_in_syntax(
-            text, start_end_pair[0], start_end_pair[1], is_case_sensitive
-        )
+        values += extract_values_in_syntax(text, start_end_pair[0], start_end_pair[1], is_case_sensitive)
     return values
 
 
@@ -92,10 +113,7 @@ def replace_diacritics(text):
         ("AY", "[\uA73C]"),
         ("B", "[\u0042\u24B7\uFF22\u1E02\u1E04\u1E06\u0243\u0182\u0181]"),
         ("C", "[\u0043\u24B8\uFF23\u0106\u0108\u010A\u010C\u00C7\u1E08\u0187\u023B\uA73E]"),
-        (
-            "D",
-            "[\u0044\u24B9\uFF24\u1E0A\u010E\u1E0C\u1E10\u1E12\u1E0E\u0110\u018B\u018A\u0189\uA779]",
-        ),
+        ("D", "[\u0044\u24B9\uFF24\u1E0A\u010E\u1E0C\u1E10\u1E12\u1E0E\u0110\u018B\u018A\u0189\uA779]"),
         ("DZ", "[\u01F1\u01C4]"),
         ("Dz", "[\u01F2\u01C5]"),
         (
@@ -103,23 +121,14 @@ def replace_diacritics(text):
             "[\u0045\u24BA\uFF25\u00C8\u00C9\u00CA\u1EC0\u1EBE\u1EC4\u1EC2\u1EBC\u0112\u1E14\u1E16\u0114\u0116\u00CB\u1EBA\u011A\u0204\u0206\u1EB8\u1EC6\u0228\u1E1C\u0118\u1E18\u1E1A\u0190\u018E]",
         ),
         ("F", "[\u0046\u24BB\uFF26\u1E1E\u0191\uA77B]"),
-        (
-            "G",
-            "[\u0047\u24BC\uFF27\u01F4\u011C\u1E20\u011E\u0120\u01E6\u0122\u01E4\u0193\uA7A0\uA77D\uA77E]",
-        ),
-        (
-            "H",
-            "[\u0048\u24BD\uFF28\u0124\u1E22\u1E26\u021E\u1E24\u1E28\u1E2A\u0126\u2C67\u2C75\uA78D]",
-        ),
+        ("G", "[\u0047\u24BC\uFF27\u01F4\u011C\u1E20\u011E\u0120\u01E6\u0122\u01E4\u0193\uA7A0\uA77D\uA77E]"),
+        ("H", "[\u0048\u24BD\uFF28\u0124\u1E22\u1E26\u021E\u1E24\u1E28\u1E2A\u0126\u2C67\u2C75\uA78D]"),
         (
             "I",
             "[\u0049\u24BE\uFF29\u00CC\u00CD\u00CE\u0128\u012A\u012C\u0130\u00CF\u1E2E\u1EC8\u01CF\u0208\u020A\u1ECA\u012E\u1E2C\u0197]",
         ),
         ("J", "[\u004A\u24BF\uFF2A\u0134\u0248]"),
-        (
-            "K",
-            "[\u004B\u24C0\uFF2B\u1E30\u01E8\u1E32\u0136\u1E34\u0198\u2C69\uA740\uA742\uA744\uA7A2]",
-        ),
+        ("K", "[\u004B\u24C0\uFF2B\u1E30\u01E8\u1E32\u0136\u1E34\u0198\u2C69\uA740\uA742\uA744\uA7A2]"),
         (
             "L",
             "[\u004C\u24C1\uFF2C\u013F\u0139\u013D\u1E36\u1E38\u013B\u1E3C\u1E3A\u0141\u023D\u2C62\u2C60\uA748\uA746\uA780]",
@@ -127,10 +136,7 @@ def replace_diacritics(text):
         ("LJ", "[\u01C7]"),
         ("Lj", "[\u01C8]"),
         ("M", "[\u004D\u24C2\uFF2D\u1E3E\u1E40\u1E42\u2C6E\u019C]"),
-        (
-            "N",
-            "[\u004E\u24C3\uFF2E\u01F8\u0143\u00D1\u1E44\u0147\u1E46\u0145\u1E4A\u1E48\u0220\u019D\uA790\uA7A4]",
-        ),
+        ("N", "[\u004E\u24C3\uFF2E\u01F8\u0143\u00D1\u1E44\u0147\u1E46\u0145\u1E4A\u1E48\u0220\u019D\uA790\uA7A4]"),
         ("NJ", "[\u01CA]"),
         ("Nj", "[\u01CB]"),
         (
@@ -151,10 +157,7 @@ def replace_diacritics(text):
             "S",
             "[\u0053\u24C8\uFF33\u1E9E\u015A\u1E64\u015C\u1E60\u0160\u1E66\u1E62\u1E68\u0218\u015E\u2C7E\uA7A8\uA784]",
         ),
-        (
-            "T",
-            "[\u0054\u24C9\uFF34\u1E6A\u0164\u1E6C\u021A\u0162\u1E70\u1E6E\u0166\u01AC\u01AE\u023E\uA786]",
-        ),
+        ("T", "[\u0054\u24C9\uFF34\u1E6A\u0164\u1E6C\u021A\u0162\u1E70\u1E6E\u0166\u01AC\u01AE\u023E\uA786]"),
         ("TZ", "[\uA728]"),
         (
             "U",
@@ -165,14 +168,8 @@ def replace_diacritics(text):
         ("VY", "[\uA760]"),
         ("W", "[\u0057\u24CC\uFF37\u1E80\u1E82\u0174\u1E86\u1E84\u1E88\u2C72]"),
         ("X", "[\u0058\u24CD\uFF38\u1E8A\u1E8C]"),
-        (
-            "Y",
-            "[\u0059\u24CE\uFF39\u1EF2\u00DD\u0176\u1EF8\u0232\u1E8E\u0178\u1EF6\u1EF4\u01B3\u024E\u1EFE]",
-        ),
-        (
-            "Z",
-            "[\u005A\u24CF\uFF3A\u0179\u1E90\u017B\u017D\u1E92\u1E94\u01B5\u0224\u2C7F\u2C6B\uA762]",
-        ),
+        ("Y", "[\u0059\u24CE\uFF39\u1EF2\u00DD\u0176\u1EF8\u0232\u1E8E\u0178\u1EF6\u1EF4\u01B3\u024E\u1EFE]"),
+        ("Z", "[\u005A\u24CF\uFF3A\u0179\u1E90\u017B\u017D\u1E92\u1E94\u01B5\u0224\u2C7F\u2C6B\uA762]"),
         (
             "a",
             "[\u0061\u24D0\uFF41\u1E9A\u00E0\u00E1\u00E2\u1EA7\u1EA5\u1EAB\u1EA9\u00E3\u0101\u0103\u1EB1\u1EAF\u1EB5\u1EB3\u0227\u01E1\u01DF\u1EA3\u00E5\u01FB\u01CE\u0201\u0203\u1EA1\u1EAD\u1EB7\u1E01\u0105\u2C65\u0250]",
@@ -185,34 +182,22 @@ def replace_diacritics(text):
         ("ay", "[\uA73D]"),
         ("b", "[\u0062\u24D1\uFF42\u1E03\u1E05\u1E07\u0180\u0183\u0253]"),
         ("c", "[\u0063\u24D2\uFF43\u0107\u0109\u010B\u010D\u00E7\u1E09\u0188\u023C\uA73F\u2184]"),
-        (
-            "d",
-            "[\u0064\u24D3\uFF44\u1E0B\u010F\u1E0D\u1E11\u1E13\u1E0F\u0111\u018C\u0256\u0257\uA77A]",
-        ),
+        ("d", "[\u0064\u24D3\uFF44\u1E0B\u010F\u1E0D\u1E11\u1E13\u1E0F\u0111\u018C\u0256\u0257\uA77A]"),
         ("dz", "[\u01F3\u01C6]"),
         (
             "e",
             "[\u0065\u24D4\uFF45\u00E8\u00E9\u00EA\u1EC1\u1EBF\u1EC5\u1EC3\u1EBD\u0113\u1E15\u1E17\u0115\u0117\u00EB\u1EBB\u011B\u0205\u0207\u1EB9\u1EC7\u0229\u1E1D\u0119\u1E19\u1E1B\u0247\u025B\u01DD]",
         ),
         ("f", "[\u0066\u24D5\uFF46\u1E1F\u0192\uA77C]"),
-        (
-            "g",
-            "[\u0067\u24D6\uFF47\u01F5\u011D\u1E21\u011F\u0121\u01E7\u0123\u01E5\u0260\uA7A1\u1D79\uA77F]",
-        ),
-        (
-            "h",
-            "[\u0068\u24D7\uFF48\u0125\u1E23\u1E27\u021F\u1E25\u1E29\u1E2B\u1E96\u0127\u2C68\u2C76\u0265]",
-        ),
+        ("g", "[\u0067\u24D6\uFF47\u01F5\u011D\u1E21\u011F\u0121\u01E7\u0123\u01E5\u0260\uA7A1\u1D79\uA77F]"),
+        ("h", "[\u0068\u24D7\uFF48\u0125\u1E23\u1E27\u021F\u1E25\u1E29\u1E2B\u1E96\u0127\u2C68\u2C76\u0265]"),
         ("hv", "[\u0195]"),
         (
             "i",
             "[\u0069\u24D8\uFF49\u00EC\u00ED\u00EE\u0129\u012B\u012D\u00EF\u1E2F\u1EC9\u01D0\u0209\u020B\u1ECB\u012F\u1E2D\u0268\u0131]",
         ),
         ("j", "[\u006A\u24D9\uFF4A\u0135\u01F0\u0249]"),
-        (
-            "k",
-            "[\u006B\u24DA\uFF4B\u1E31\u01E9\u1E33\u0137\u1E35\u0199\u2C6A\uA741\uA743\uA745\uA7A3]",
-        ),
+        ("k", "[\u006B\u24DA\uFF4B\u1E31\u01E9\u1E33\u0137\u1E35\u0199\u2C6A\uA741\uA743\uA745\uA7A3]"),
         (
             "l",
             "[\u006C\u24DB\uFF4C\u0140\u013A\u013E\u1E37\u1E39\u013C\u1E3D\u1E3B\u017F\u0142\u019A\u026B\u2C61\uA749\uA781\uA747]",
@@ -243,10 +228,7 @@ def replace_diacritics(text):
             "[\u0073\u24E2\uFF53\u015B\u1E65\u015D\u1E61\u0161\u1E67\u1E63\u1E69\u0219\u015F\u023F\uA7A9\uA785\u1E9B]",
         ),
         ("ss", "[\u00DF]"),
-        (
-            "t",
-            "[\u0074\u24E3\uFF54\u1E6B\u1E97\u0165\u1E6D\u021B\u0163\u1E71\u1E6F\u0167\u01AD\u0288\u2C66\uA787]",
-        ),
+        ("t", "[\u0074\u24E3\uFF54\u1E6B\u1E97\u0165\u1E6D\u021B\u0163\u1E71\u1E6F\u0167\u01AD\u0288\u2C66\uA787]"),
         ("tz", "[\uA729]"),
         (
             "u",
@@ -257,14 +239,8 @@ def replace_diacritics(text):
         ("vy", "[\uA761]"),
         ("w", "[\u0077\u24E6\uFF57\u1E81\u1E83\u0175\u1E87\u1E85\u1E98\u1E89\u2C73]"),
         ("x", "[\u0078\u24E7\uFF58\u1E8B\u1E8D]"),
-        (
-            "y",
-            "[\u0079\u24E8\uFF59\u1EF3\u00FD\u0177\u1EF9\u0233\u1E8F\u00FF\u1EF7\u1E99\u1EF5\u01B4\u024F\u1EFF]",
-        ),
-        (
-            "z",
-            "[\u007A\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763]",
-        ),
+        ("y", "[\u0079\u24E8\uFF59\u1EF3\u00FD\u0177\u1EF9\u0233\u1E8F\u00FF\u1EF7\u1E99\u1EF5\u01B4\u024F\u1EFF]"),
+        ("z", "[\u007A\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763]"),
     )
 
     for replacement, regex_search_term in diacritics_map:

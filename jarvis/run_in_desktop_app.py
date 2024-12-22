@@ -6,7 +6,7 @@ import time
 import pvporcupine
 import pyaudio
 
-from helpers.helpers import get_random_item_in_list
+from helpers.helpers import get_random_item
 from chatbot import settings, get_response
 from nlu_pipeline.intent_matching import intents_runtime
 from speech_recognitions.speech_recognition_lib import recognize_speech
@@ -32,7 +32,9 @@ speak_text = pyttsx_lib.speak_text
 def conversation_flow():
     tagged_tokens = intent = state_running_task = {}
 
-    speak_text(get_random_item_in_list(wake_word_responses))
+    wake_word_response = get_random_item(wake_word_responses)
+    print(wake_word_response)
+    speak_text(wake_word_response)
 
     while True:
         # message = input().strip()
@@ -50,12 +52,12 @@ def conversation_flow():
             continue
 
         elif message.lower() == "exit":
-            exit_msg = f"{get_random_item_in_list(exit_assistant_responses)} {get_random_item_in_list(farewell_responses)}"
+            exit_msg = f"{get_random_item(exit_assistant_responses)} {get_random_item(farewell_responses)}"
             print(f"> {exit_msg}")
             speak_text(exit_msg)
             return False
 
-        response, diagnostic, is_exit_assistant = get_response(message)
+        (response, diagnostic, is_exit_assistant) = get_response(message)
 
         tagged_tokens = diagnostic.get("tagged_tokens")
         intent = diagnostic.get("intent")
@@ -64,7 +66,7 @@ def conversation_flow():
         print("---Gefundener Intent---\n", intent.get("tag"))
 
         if is_exit_assistant:
-            exit_msg = f"{response} {get_random_item_in_list(farewell_responses)}"
+            exit_msg = f"{response} {get_random_item(farewell_responses)}"
             print(f"> {exit_msg}")
             speak_text(exit_msg)
             return False
@@ -171,7 +173,7 @@ def run_wake_word_detection():
             my_py_audio.terminate()
 
 
-def run_chatbot_in_desktop_app_BAK():
+def run_terminal_conversation():
 
     tagged_tokens = intent = state_running_task = {}
 
@@ -179,13 +181,12 @@ def run_chatbot_in_desktop_app_BAK():
         "Okay, lass uns per Terminal chatten!\n"
         + '[Eingabe "task": Stand des aktuell bearbeiteten Tasks ausgeben]\n'
         + '[Eingabe "tokens": Ermittelte Tokens der letzten Nachricht ausgeben]\n'
-        + '[Eingabe "exit": Chat beenden]'
+        + '[Eingabe "exit": Chat beenden]\n'
     )
     print(opening_messsage)
 
     while True:
-        # message = input().strip()
-        message = recognize_speech()
+        message = input().strip()
 
         if not message:
             continue
@@ -198,10 +199,11 @@ def run_chatbot_in_desktop_app_BAK():
             continue
 
         elif message.lower() == "exit":
-            print("> Danke! Bis bald!")
+            exit_msg = f"{get_random_item(exit_assistant_responses)} {get_random_item(farewell_responses)}"
+            print(f"> {exit_msg}")
             break
 
-        response, diagnostic = get_response(message)
+        (response, diagnostic, is_exit_assistant) = get_response(message)
 
         tagged_tokens = diagnostic.get("tagged_tokens")
         intent = diagnostic.get("intent")
@@ -209,9 +211,12 @@ def run_chatbot_in_desktop_app_BAK():
 
         print("---Gefundener Intent---\n", intent.get("tag"))
 
-        print("> " + response)
-        pyttsx_lib.speak_text(response)
-        # gtts_lib.speak_text(response)
+        if is_exit_assistant:
+            exit_msg = f"{response} {get_random_item(farewell_responses)}"
+            print(f"> {exit_msg}")
+            break
+
+        print(f"> {response}")
 
 
 if (__name__) == "__main__":
@@ -219,7 +224,8 @@ if (__name__) == "__main__":
 
     # print(pvporcupine.KEYWORDS)
 
-    run_wake_word_detection()
+    # run_wake_word_detection()
+    run_terminal_conversation()
 
     # window = tkinter.Tk()
 

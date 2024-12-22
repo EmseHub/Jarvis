@@ -3,11 +3,13 @@ import asyncio
 import os
 from datetime import datetime
 
-from tasks.agents import selenium_lib, requests_lib, requests_html_lib, openai_lib
+# from tasks.agents import selenium_lib, requests_lib, requests_html_lib, openai_lib
+# from tasks.agents import selenium_lib
+from tasks.agents import requests_html_lib
 
 
-from speech_synthesis.api import elevenlabs_lib
-from speech_recognitions.speech_recognition_lib import recognize_speech
+# from speech_synthesis.api import elevenlabs_lib
+# from speech_recognitions.speech_recognition_lib import recognize_speech
 
 
 def main():
@@ -18,6 +20,8 @@ def main():
     # result = requests_lib.requests_lib.get_reponse_text(url)
 
     # result = requests_html_lib.requests_html_lib.wer_streamt_es("Army of Darkness")
+    # result = requests_html_lib.requests_html_lib.bing("octopath traveler")
+    result, is_successful, suggestion = requests_html_lib.requests_html_lib.wikipedia("Sindarin", True)
 
     question = "Wie alt ist Angela Merkel?"
     # result = selenium_lib.google.get_google_answer(question)
@@ -32,7 +36,7 @@ def main():
     #     "Nichts geht jemals weg, bevor es uns gelehrt hat, was wir wissen müssen."
     # )
 
-    recognize_speech()
+    # recognize_speech()
 
     print(result)
 
@@ -57,4 +61,5 @@ def main():
         print("Closing Slack")
 
 
-main()
+if (__name__) == "__main__":
+    main()

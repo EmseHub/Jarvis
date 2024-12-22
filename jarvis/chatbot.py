@@ -1,5 +1,3 @@
-from operator import itemgetter
-
 from helpers.helpers import parse_object_from_jsonfile
 from nlu_pipeline.preprocessing import get_tagged_tokens
 from nlu_pipeline.intent_matching import get_intent
@@ -20,14 +18,8 @@ def get_response(message):
 
     intent = get_intent(tagged_tokens)
 
-    state_running_task, response, is_exit_assistant = itemgetter(
-        "state_running_task", "response", "is_exit_assistant"
-    )(process_task(state_running_task, tagged_tokens, message, intent))
+    (state_running_task, response, is_exit_assistant) = process_task(state_running_task, tagged_tokens, message, intent)
 
-    diagnostic = {
-        "tagged_tokens": tagged_tokens,
-        "intent": intent,
-        "state_running_task": state_running_task,
-    }
+    diagnostic = {"tagged_tokens": tagged_tokens, "intent": intent, "state_running_task": state_running_task}
 
     return (response, diagnostic, is_exit_assistant)

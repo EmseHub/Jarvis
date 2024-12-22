@@ -1,13 +1,16 @@
 import speech_recognition as sr
 
 from chatbot import settings
+from helpers.helpers import play_audio_file
 
 
 sr_recognizer = sr.Recognizer()
 input_device_index = settings.get("input_device_index")
 
+# Mikrofone auflisten
 # for index, name in enumerate(sr.Microphone.list_microphone_names()):
-#     print(f'Name des Mikrofons: "{name}" ------ Index: {index}')
+#     if name.startswith("Mikrofon"):
+#         print(f'Name des Mikrofons: "{name}" ------ Index: {index}')
 
 
 def recognize_speech():
@@ -20,6 +23,8 @@ def recognize_speech():
             # sr_recognizer.adjust_for_ambient_noise(mic_source, duration=0.5)
 
             print("Aufnahme läuft...")
+            play_audio_file("jarvis/assets/listening.wav", is_blocking=True)
+
             audio_input = sr_recognizer.listen(mic_source, timeout=None, phrase_time_limit=4)
             print("Spracheingabe erkannt, starte Recognition...")
 
@@ -30,9 +35,8 @@ def recognize_speech():
 
     except sr.RequestError as e:
         print(
-            "Request gescheitert: Zur Spracheingabe konnten keine Ergebnisse angefordert werden (Key ungültig? Besteht keine Verbindung zum Internet?); {0}".format(
-                e
-            )
+            "Request gescheitert: Zur Spracheingabe konnten keine Ergebnisse angefordert werden (Key ungültig? Besteht keine Verbindung zum Internet?):",
+            e,
         )
 
     except sr.UnknownValueError as e:
@@ -43,7 +47,7 @@ def recognize_speech():
         print("Keine Spracheingabe... (Timeout)")
 
     except Exception as e:
-        print(e)
+        print("Unerwarteter Fehler bei der Spracherkennung:", e)
 
     finally:
         return audio_as_text

@@ -1,4 +1,57 @@
 [
+
+    {
+        "tag": "ask_ai",
+        "min_hits": 2,
+        "patterns": [
+            "wer",
+            "was",
+            "wen",
+            "wem",
+            "wessen",
+            "welche",
+            "welcher",
+            "welches",
+            "welchem",
+            "welchen",
+            "wo",
+            "wohin",
+            "woher",
+            "woran",
+            "worauf",
+            "woraus",
+            "worüber",
+            "womit",
+            "wie",
+            "wieso",
+            "weshalb",
+            "warum",
+            "weswegen",
+            "wann",
+            "bin",
+            "ist",
+            "sind",
+            "war",
+            "waren",
+            "wird",
+            "werden",
+            "KI",
+            "GPT",
+            "Copilot"
+        ],
+        "responses": [],
+        "task": "ask_ai"
+    },
+    {
+        "tag": "ask_google",
+        "min_hits": 2,
+        "patterns": [
+            "google",
+            "nach"
+        ],
+        "responses": [],
+        "task": "ask_google"
+    },
     {
         "tag": "check_where_to_stream_media",
         "min_hits": 2,
@@ -29,6 +82,8 @@
             "ja",
             "jawohl",
             "jo",
+            "jup",
+            "jupp",
             "korrekt",
             "bestätigen",
             "bestätige",
@@ -41,7 +96,8 @@
             "einverstanden",
             "klar",
             "genau",
-            "exakt"
+            "exakt",
+            "richtig"
         ],
         "responses": [
             "Sehr gut.",
@@ -139,8 +195,8 @@
             "Mach's gut!",
             "Halt die Ohren steif!",
             "Brudi, muss los...",
-            "Tschüsseldorf",
-            "San Frantschüssko",
+            "Tschüsseldorf!",
+            "San Frantschüssko!",
             "Tschüsli Müsli!",
             "Auf Wiederklatsch!",
             "Bis später, Attentäter!",
@@ -160,7 +216,8 @@
             "Hegel sagt: Freiheit ist Einsicht in die Notwendigkeit.",
             "Meine Liebesgeschichten gehen nie zu Ende.",
             "Denk immer dran: Es sind nicht unsere Fähigkeiten, die zeigen, wer wir sind, sondern unsere Entscheidungen.",
-            "Eines möchte ich Dir noch mit auf den Weg geben: Die Stimme eines Kindes, egal wie ehrlich oder aufrichtig, ist bedeutungslos für jene, die verlernt haben, zuzuhören."
+            "Eines möchte ich Dir noch mit auf den Weg geben: Die Stimme eines Kindes, egal wie ehrlich oder aufrichtig, ist bedeutungslos für jene, die verlernt haben, zuzuhören.",
+            "Die Ehrwürdige Mutter Gaius Helen Mohiam sagt: Das Leben ist kein Problem, das es zu lösen gilt, sondern eine Wirklichkeit, die man erfahren muss."
         ],
         "task": ""
     },
@@ -339,17 +396,18 @@
             "Sleepmode",
             "Sleep",
             "Mode",
+            "Energiesparmodus",
+            "Energie",
+            "sparen",
             "schlafen",
             "schlafe",
             "legen",
             "leg",
             "gehen",
-            "geh"
+            "geh",
+            "versetzen"
         ],
-        "responses": [
-            "Gerät geht in den Ruhezustand.",
-            "Gehe in Sleep Mode."
-        ],
+        "responses": [],
         "task": "computer_sleep"
     },
     {
@@ -366,11 +424,25 @@
             "fahre",
             "herunter"
         ],
-        "responses": [
-            "Gerät wird heruntergefahren.",
-            "Gerät wird ausgeschaltet."
-        ],
+        "responses": [],
         "task": "computer_shutdown"
+    },
+    {
+        "tag": "computer_restart",
+        "min_hits": 2,
+        "patterns": [
+            "Computer",
+            "PC",
+            "Gerät",
+            "System",
+            "neu",
+            "starten",
+            "starte",
+            "Neustart",
+            "Reboot"
+        ],
+        "responses": [],
+        "task": "computer_restart"
     },
 
 
