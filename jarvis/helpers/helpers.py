@@ -4,6 +4,8 @@ import random
 import json
 import urllib.parse
 
+from playsound import playsound
+
 
 # -------------------- FILES --------------------
 
@@ -25,6 +27,13 @@ def write_text_to_textfile(filepath, text, encoding="utf-8"):
 
 def write_object_to_jsonfile(filepath, object, ensure_ascii=True):
     write_text_to_textfile(filepath, json.dumps(object, indent=4, ensure_ascii=ensure_ascii))
+
+
+def play_audio_file(file_path, is_blocking=True):
+    if not file_path.strip():
+        return
+    file_path = file_path.replace("\\\\", "\\").replace("\\", "/")
+    playsound(file_path, block=is_blocking)
 
 
 # -------------------- LISTS --------------------

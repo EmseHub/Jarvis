@@ -1,30 +1,5 @@
 [
     {
-        "tag": "trefferlos",
-        "min_hits": 0,
-        "patterns": [],
-        "responses": [
-            "Tut mir leid, ich verstehe die Anfrage nicht. Könntest Du sie umformulieren?",
-            "Mit dieser Nachricht kann ich leider nichts anfangen.",
-            "Check ich nicht.",
-            "Ich verstehe nicht.",
-            "Könntest Du die Aussage konkretisieren?",
-            "Sag es so, dass ich es verstehe...",
-            "Was labersch Du?",
-            "Wat babbelst Du da wieder?",
-            "Du nuschelst.",
-            "Du musst langsam mit mir sprechen, ich bin nur ein Hut.",
-            "Diese Wörter kann ich leider nicht unter einen Hut bringen."
-        ],
-        "task": ""
-    },
-
-
-
-    
-
-
-    {
         "tag": "check_where_to_stream_media",
         "min_hits": 2,
         "patterns": [
@@ -38,29 +13,9 @@
         "responses": [],
         "task": "check_where_to_stream_media"
     },
-    {
-        "tag": "test_0",
-        "min_hits": 1,
-        "patterns": [
-            "test"
-        ],
-        "responses": [
-            ""
-        ],
-        "task": "test_0"
-    },
-    {
-        "tag": "do_sth",
-        "min_hits": 2,
-        "patterns": [
-            "Mach",
-            "etwas"
-        ],
-        "responses": [
-            ""
-        ],
-        "task": "do_sth"
-    },
+
+
+
 
 
 
@@ -68,7 +23,7 @@
 
 
     {
-        "tag": "zustimmung",
+        "tag": "confirmation",
         "min_hits": 1,
         "patterns": [
             "ja",
@@ -91,12 +46,18 @@
         "responses": [
             "Sehr gut.",
             "Nice.",
-            "Hut ab!"
+            "Alles klar.",
+            "Es ist mir eine Ehre.",
+            "Dein Wunsch ist mir Befehl.",
+            "Zu Befehl.",
+            "Jawohl.",
+            "In Ordnung.",
+            "Okay."
         ],
         "task": ""
     },
     {
-        "tag": "ablehnung",
+        "tag": "denial",
         "min_hits": 1,
         "patterns": [
             "nein",
@@ -107,6 +68,7 @@
             "abbruch",
             "abbrechen",
             "beenden",
+            "beende",
             "zurück",
             "widersprechen",
             "widerspreche",
@@ -126,17 +88,16 @@
 
 
 
-
     {
-        "tag": "begruessung",
+        "tag": "welcoming",
         "min_hits": 1,
         "patterns": [
-            "hallo",
-            "hi",
-            "hey",
-            "moin",
-            "na",
-            "gruß",
+            "Hallo",
+            "Hi",
+            "Hey",
+            "Moin",
+            "Na",
+            "Gruß",
             "grüße",
             "gut",
             "Tag"
@@ -156,7 +117,7 @@
         "task": ""
     },
     {
-        "tag": "abschiedsgruss",
+        "tag": "farewell",
         "min_hits": 1,
         "patterns": [
             "Abschied",
@@ -173,8 +134,8 @@
         ],
         "responses": [
             "Auf Wiedersehen!",
-            "Danke für Deinen Besuch!",
-            "Beehre uns bald wieder!",
+            "Danke für das nette Gespräch.",
+            "Beehre mich bald wieder!",
             "Mach's gut!",
             "Halt die Ohren steif!",
             "Brudi, muss los...",
@@ -187,15 +148,28 @@
             "Ich verabscheue mich!",
             "Bis denne, Antenne!",
             "Hau rinse!",
+            "Mach et joot, schwenk de Hoot!",
+            "Und denk immer daran: Es ist immer Zeit für einen neuen Anfang.",
+            "Und denk immer daran: Wer glaubt gut zu sein, hat aufgehört besser zu werden.",
+            "Und denk immer daran: Man kann niemanden überholen, wenn man in seine Fußstapfen tritt.",
+            "Und denk immer daran: Sei Du selbst die Veränderung, die du Dir wünschst für diese Welt.",
+            "Konfuzius sagt: Wer ständig glücklich sein möchte, muss sich oft verändern.",
+            "Konfuzius sagt: Auch eine Reise von tausend Meilen beginnt mit dem ersten Schritt.",
+            "Hier noch ein Aphorismus von Goethe: Auch aus Steinen, die einem in den Weg gelegt werden, kann man Schönes bauen.",
+            "Hier noch ein Aphorismus: Der Mensch flieht vor der Zeit, die Zeit vor dem Menschen.",
+            "Hegel sagt: Freiheit ist Einsicht in die Notwendigkeit.",
+            "Meine Liebesgeschichten gehen nie zu Ende.",
             "Denk immer dran: Es sind nicht unsere Fähigkeiten, die zeigen, wer wir sind, sondern unsere Entscheidungen.",
-            "Eines möchte ich Dir noch mit auf den Weg geben: Die Stimme eines Kindes, egal wie ehrlich oder aufrichtig, ist bedeutungslos für jene, die verlernt haben, zuzuhören.",
-            "Keep it J.K. Rowling!",
-            "Mach et joot, schwenk de Hoot!"
+            "Eines möchte ich Dir noch mit auf den Weg geben: Die Stimme eines Kindes, egal wie ehrlich oder aufrichtig, ist bedeutungslos für jene, die verlernt haben, zuzuhören."
         ],
         "task": ""
     },
+
+
+
+
     {
-        "tag": "befinden",
+        "tag": "feeling",
         "min_hits": 2,
         "patterns": [
             "wie",
@@ -212,9 +186,10 @@
         "task": ""
     },
     {
-        "tag": "dank",
+        "tag": "acknowledgment",
         "min_hits": 1,
         "patterns": [
+            "Dank",
             "danken",
             "danke",
             "bedanken",
@@ -233,6 +208,9 @@
 
 
 
+
+
+
     {
         "tag": "bullshit",
         "min_hits": 1,
@@ -246,6 +224,185 @@
             "Oh ja.",
             "Schon, ja.",
             "Ich mach Dich so klein mit Hut."
+        ],
+        "task": ""
+    },
+
+
+
+
+ 
+
+
+    {
+        "tag": "wake_up",
+        "min_hits": 0,
+        "patterns": [],
+        "responses": [
+            "Ja?",
+            "Ja.",
+            "Jap.",
+            "Jup.",
+            "Ja bitte?",
+            "Jo.",
+            "Jawohl.",
+            "Yes.",
+            "Mylord?",
+            "Ja, Mylord?",
+            "Herr?",
+            "Mein Herr?",
+            "Ja, mein Herr?",
+            "Meister?",
+            "Ja, Meister?",
+            "Mein Meister.",
+            "Euer Durchlaucht?",
+            "Sir?",
+            "Sire?",
+            "Sensei?",
+            "Sensei.",
+            "Bitte.",
+            "Ja bitte?",
+            "Zu Diensten.",
+            "Zu Euren Diensten.",
+            "Sprecht.",
+            "Höre.",
+            "Ich höre.",
+            "Ich bin ganz Ohr.",
+            "Bereit.",
+            "Was gibt's?",
+            "Was gibt es?",
+            "Wat gibbet?",
+            "Was liegt an?",
+            "Was steht an?",
+            "Was ist Euer Begehr?",
+            "Wie kann ich helfen?",
+            "Wie kann ich behilflich sein?",
+            "Was darf's sein?",
+            "Was kann ich tun?",
+            "Was kann ich für Euch tun?",
+            "Was kann ich für Dich tun?",
+            "Was ficht Euch an?",
+            "Was geht?",
+            "Was geht ab?",
+            "Womit kann ich dienen?",
+            "Kann gerade nicht. Spaß...",
+            "Hm?",
+            "Hmm?"
+        ],
+        "task": ""
+    },
+
+    {
+        "tag": "stop_listening",
+        "min_hits": 0,
+        "patterns": [],
+        "responses": [
+        ],
+        "task": ""
+    },
+
+    {
+        "tag": "exit_assistant",
+        "min_hits": 2,
+        "patterns": [
+            "Jarvis",
+            "Assistent",
+            "Programm",
+            "Program",
+            "Prozess",
+            "Ausführung",
+            "beenden",
+            "beende",
+            "stoppen",
+            "stoppe",
+            "exit"
+        ],
+        "responses": [
+            "Assistent wird beendet."
+        ],
+        "task": "exit_assistant"
+    },
+
+
+    {
+        "tag": "computer_sleep",
+        "min_hits": 2,
+        "patterns": [
+            "Computer",
+            "PC",
+            "Gerät",
+            "System",
+            "Ruhezustand",
+            "Ruhe",
+            "Schlaf",
+            "Schlafensmodus",
+            "Sleepmode",
+            "Sleep",
+            "Mode",
+            "schlafen",
+            "schlafe",
+            "legen",
+            "leg",
+            "gehen",
+            "geh"
+        ],
+        "responses": [
+            "Gerät geht in den Ruhezustand.",
+            "Gehe in Sleep Mode."
+        ],
+        "task": "computer_sleep"
+    },
+    {
+        "tag": "computer_shutdown",
+        "min_hits": 2,
+        "patterns": [
+            "Computer",
+            "PC",
+            "Gerät",
+            "System",
+            "herunterfahren",
+            "ausschalten",
+            "schalte",
+            "fahre",
+            "herunter"
+        ],
+        "responses": [
+            "Gerät wird heruntergefahren.",
+            "Gerät wird ausgeschaltet."
+        ],
+        "task": "computer_shutdown"
+    },
+
+
+
+    {
+        "tag": "no_match",
+        "min_hits": 0,
+        "patterns": [],
+        "responses": [
+            "Tut mir leid, ich verstehe die Anfrage nicht. Könntest Du sie umformulieren?",
+            "Tut mir leid, ich verstehe nicht.",
+            "Ich verstehe nicht.",
+            "Ich verstehe Dich nicht.",
+            "Mit dieser Anfrage kann ich leider nichts anfangen.",
+            "Könntest Du die Aussage konkretisieren?",
+            "Check ich nicht.",
+            "Könntest Du die Aussage präzisieren.",
+            "Sag es so, dass ich es verstehe...",
+            "Was redest Du?",
+            "Was sagst Du?",
+            "Was meinst Du?",
+            "Wie meinst Du?",
+            "Was labersch Du?",
+            "Wat babbelst Du da wieder?",
+            "Du nuschelst.",
+            "Du musst langsam mit mir sprechen.",
+            "Diese Wörter ergeben für mich keinen Sinn.",
+            "Es tut mir leid, ich kann Dir nicht folgen.",
+            "Ich kann nicht folgen.",
+            "Könntest Du das wiederholen.",
+            "Wie bitte?",
+            "Bitte wie war das?"
         ],
         "task": ""
     }

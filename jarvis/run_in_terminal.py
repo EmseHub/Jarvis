@@ -2,6 +2,10 @@ import json
 
 from chatbot import get_response
 
+from speech_synthesis.local import pyttsx_lib
+from speech_synthesis.api import gtts_lib
+from speech_recognitions.speech_recognition_lib import recognize_speech
+
 
 def run_chatbot_in_terminal():
 
@@ -41,6 +45,7 @@ def run_chatbot_in_terminal():
         print("---Gefundener Intent---\n", intent.get("tag"))
 
         print("> " + response)
+        pyttsx_lib.speak_text(response)
 
 
 if (__name__) == "__main__":

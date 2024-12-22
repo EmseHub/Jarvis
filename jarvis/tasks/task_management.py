@@ -1,9 +1,8 @@
 import re
 from operator import itemgetter
 
-from tasks import task_functions
-
 from helpers.helpers import get_random_item_in_list, replace_diacritics
+from tasks import task_functions, task_functions_os
 
 
 def process_task(state_running_task, tagged_tokens, message_raw, intent):
@@ -13,10 +12,15 @@ def process_task(state_running_task, tagged_tokens, message_raw, intent):
 
     try:
         response = None
+        is_exit_assistant = False
 
         # Prüfen, ob eine Nachricht und Tokens vorhanden sind
         if not tagged_tokens or not message_raw:
-            return {"state_running_task": state_running_task, "response": response}
+            return {
+                "state_running_task": state_running_task,
+                "response": response,
+                "is_exit_assistant": is_exit_assistant,
+            }
 
         # Prüfen, ob es noch entweder noch einen offenen Task gibt, oder die Eröffnung eines neuen Tasks aus dem Intent hervorgeht
         if state_running_task or intent.get("task"):
@@ -44,6 +48,14 @@ def process_task(state_running_task, tagged_tokens, message_raw, intent):
                         state_running_task, message_raw_simple, intent_tag
                     )
                 )
+            elif running_task_name == "computer_shutdown":
+                state_running_task, response, is_exit_assistant = itemgetter(
+                    "state_running_task", "response", "is_exit_assistant"
+                )(task_functions_os.shutdown_computer(state_running_task, intent_tag))
+            elif running_task_name == "computer_sleep":
+                state_running_task, response, is_exit_assistant = itemgetter(
+                    "state_running_task", "response", "is_exit_assistant"
+                )(task_functions_os.hibernate_computer(state_running_task, intent_tag))
             elif running_task_name == "test_0":
                 state_running_task = None
                 # response = selenium_lib...get_mscopilot_answer_full(message_raw_simple)
@@ -62,7 +74,7 @@ def process_task(state_running_task, tagged_tokens, message_raw, intent):
             # )(state_running_task, tagged_tokens, message_raw_simple, intent_tag))()
 
             # Task abgeschlossen oder abgebrochen -> Anschlussfrage ergänzen
-            if not state_running_task:
+            if not state_running_task and not is_exit_assistant:
                 response += " " + get_random_item_in_list(
                     [
                         "Kann ich sonst noch etwas für Dich tun?",
@@ -75,11 +87,16 @@ def process_task(state_running_task, tagged_tokens, message_raw, intent):
         else:
             response = get_random_item_in_list(intent["responses"])
 
-        return {"state_running_task": state_running_task, "response": response}
+        return {
+            "state_running_task": state_running_task,
+            "response": response,
+            "is_exit_assistant": is_exit_assistant,
+        }
 
     except Exception as e:
         print(e)
         return {
             "state_running_task": state_running_task,
             "response": "Es tut mir leid, bei der Bearbeitung der Aufgabe ist es zu einem unerwarteten Fehler gekommen. Wiederholen?",
+            "is_exit_assistant": is_exit_assistant,
         }

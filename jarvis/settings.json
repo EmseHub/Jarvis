@@ -1,0 +1,6 @@
+{
+    "input_device_index": 2,
+    "output_device_index": null,
+    "personal_storage_path": "%USERPROFILE%/Documents/Jarvis",
+    "standby_after_minutes_inactive": 60
+}

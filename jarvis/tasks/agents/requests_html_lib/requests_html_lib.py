@@ -28,7 +28,6 @@ async def async_get(url):
 
 def sample(search_term):
     try:
-        # title_converted = re.sub(r"\s+", "+", search_term)
         title_converted = url_encode(search_term)
         url = f"https://www.bing.com/search?q={title_converted}"
 
@@ -55,10 +54,8 @@ def wer_streamt_es(title):
         session = HTMLSession()
 
         # Seite mit Suchergebnissen laden
-        # title_converted = re.sub(r"\s+", "+", title)
         title_converted = url_encode(title)
         url = f"https://www.werstreamt.es/filme-serien/?q={title_converted}"
-        print(url)
         response = session.get(url)
 
         if not (response and response.status_code == 200 ):

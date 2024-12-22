@@ -1,5 +1,3 @@
-import json
-
 from HanTa import HanoverTagger as hanta
 from helpers.helpers import parse_object_from_jsonfile, write_object_to_jsonfile, replace_diacritics
 
@@ -40,6 +38,8 @@ def generate_intents_runtime(intents_with_diacritics):
 intents_runtime = generate_intents_runtime(
     parse_object_from_jsonfile("jarvis/nlu_pipeline/intents.json")
 )
+
+no_match_intent = next(intent for intent in intents_runtime if intent["tag"] == "no_match")
 
 
 def get_intent(tagged_tokens):
@@ -82,10 +82,7 @@ def get_intent(tagged_tokens):
 
     # Falls kein Intent gefunden wurde, Default-Intent ausgeben
     if len(possible_intents) == 0:
-        return {
-            **next(intent for intent in intents_runtime if intent["tag"] == "trefferlos"),
-            "hit_count": 0,
-        }
+        return {**no_match_intent, "hit_count": 0}
 
     # Intent mit den meisten Treffern ausgeben
     # print("Mögliche Intents", possible_intents)

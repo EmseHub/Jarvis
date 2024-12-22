@@ -14,6 +14,14 @@ requests = "*"
 openai = "*"
 elevenlabs = "*"
 requests-html = "*"
+pyttsx4 = "*"
+speechrecognition = "*"
+pyaudio = "*"
+pvporcupine = "==1.9.5"
+setuptools = "*"
+gtts = "*"
+wheel = "*"
+playsound = "*"
 
 [dev-packages]
 

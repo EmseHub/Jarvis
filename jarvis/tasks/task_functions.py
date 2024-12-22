@@ -11,7 +11,7 @@ from helpers.helpers import (
 from tasks.entity_detection import detect_sth_in_text
 
 # from tasks import agents
-from tasks.agents import selenium_lib, requests_lib, requests_html_lib, openai
+from tasks.agents import selenium_lib, requests_lib, requests_html_lib, openai_lib
 
 
 get_error_msg = (
@@ -24,7 +24,7 @@ def do_sth(state_running_task, message_processed, intent_tag):
     if not state_running_task or not message_processed or not intent_tag:
         return {"state_running_task": state_running_task, "response": None}
 
-    if intent_tag == "ablehnung":
+    if intent_tag == "denial":
         return {"state_running_task": None, "response": "Ich breche die Aufgabe ab."}
 
     # String mit Rückfragen bei unvollständigen Angaben
@@ -38,7 +38,7 @@ def do_sth(state_running_task, message_processed, intent_tag):
         return {"state_running_task": state_running_task, "response": query}
 
     # Prüfen, ob die Bestätigung der Ausführung logisch bereits erteilt werden kann und diese mit der aktuellen Nachricht auch erteilt wurde
-    if (not is_confirmation_possible) or (intent_tag != "zustimmung"):
+    if not (is_confirmation_possible and intent_tag == "confirmation"):
         query = "Nun denn, ich führe den Task aus, okay?"
         return {"state_running_task": state_running_task, "response": query}
 
@@ -50,7 +50,7 @@ def check_where_to_stream_media(state_running_task, message_raw, intent_tag):
     if not state_running_task or not message_raw or not intent_tag:
         return {"state_running_task": state_running_task, "response": None}
 
-    if intent_tag == "ablehnung":
+    if intent_tag == "denial":
         return {
             "state_running_task": None,
             "response": "Ich breche die Suche nach Streaming-Anbietern ab.",
@@ -100,7 +100,7 @@ def check_where_to_stream_media(state_running_task, message_raw, intent_tag):
         is_confirmation_possible = False
 
     # Prüfen, ob die Bestätigung der Ausführung logisch bereits erteilt werden kann und diese mit der aktuellen Nachricht auch erteilt wurde
-    if (not is_confirmation_possible) or (intent_tag != "zustimmung"):
+    if not (is_confirmation_possible and intent_tag == "confirmation"):
         query = get_random_item_in_list(
             [
                 f'Du möchtest wissen, bei welchem Anbieter Du "{media_title}" aktuell streamen kannst?',
